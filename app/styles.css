@@ -1,0 +1,377 @@
+/* -------------------- Resets --------------------- */
+body, form, fieldset, ol, ul, li, h1, h2, h3, h4, h5, h6, p {
+  margin:0;
+  padding:0;
+  font-family: Modak;
+  font-weight: 400;
+  font-size: 25px;
+  color: #5F5F5F;
+  background: #F9F7ED !important;
+}
+
+img {
+  border:0; /* kills Gecko bug when img's are placed inside links */
+  vertical-align:bottom; /* set vertical align to bottom for IE */
+}
+
+table {
+  text-align: center; 
+}
+
+th {
+  top: 0;
+  position: sticky;
+  background-color: #F9F7ED !important;
+}
+
+td {
+  background-color: #F9F7ED !important;
+  color: #5F5F5F !important;
+}
+
+tbody tr th {
+  width: 100px !important;
+}
+
+td:last-child {
+  width: 100px !important;
+}
+
+#main {
+  background-color: #F9F7ED;
+}
+
+.modak {
+  font-family: Modak !important;
+}
+
+.table-responsive {
+  max-height: 600px;
+  min-height: 400px;
+}
+
+td:nth-child(2) {
+  padding-right: 0 !important;
+}
+
+td:nth-child(3) {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+td:nth-child(4) {
+  padding-left: 0 !important;
+}
+
+tr:hover td:nth-child(2) {
+  padding-right: 10px !important;
+}
+
+tr:hover td:nth-child(3) {
+  padding-right: 10px !important;
+}
+
+tr:hover .t-container-1 {
+  border-radius: 15px;
+  border: 3px solid rgba(95, 95, 95, 0.50);
+}
+
+tr:hover .t-container-2 {
+  border-radius: 15px;
+  border: 3px solid rgba(95, 95, 95, 0.50);
+}
+
+tr:hover .t-container-3 {
+  border-radius: 15px;
+  border: 3px solid rgba(95, 95, 95, 0.50);
+}
+
+tr:hover .purple-btn-hover{
+  cursor: pointer;
+  background: #B84B9A80 !important;
+  border: 3px solid rgba(95, 95, 95, 0) !important;
+  color: white;
+}
+
+tr:hover .grey-btn-hover{
+  background: #5F5F5F80 !important;
+  border: 3px solid rgba(95, 95, 95, 0) !important;
+  color: white;
+  cursor: default;
+}
+
+.grey-btn {
+  background: #5F5F5F !important;
+  border: 3px solid #5F5F5F !important;
+  color: white;
+  cursor: pointer;
+}
+
+.purple-btn {
+  background: #BF5DA4 !important;
+  border: 3px solid #BF5DA4 !important;
+  color: white;
+  cursor: pointer;
+}
+
+.t-container-1 {
+  border-radius: 15px 0 0 15px;
+  border: 3px solid rgba(95, 95, 95, 0.50);
+  border-right: none;
+  background: #FFF;
+  padding: 10px;
+}
+
+.t-container-2 {
+  border: 3px solid rgba(95, 95, 95, 0.50);
+  border-right: none;
+  background: #FFF;
+  padding: 10px;
+}
+
+.t-container-3 {
+  border-radius: 0 15px 15px 0;
+  border: 3px solid rgba(95, 95, 95, 0.50);
+  background: #FFF;
+  padding: 10px;
+}
+
+.title {
+  color: #5F5F5F;
+  leading-trim: both;
+  text-edge: cap;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
+
+.secondary {
+  font-weight: 500;
+  font-family: Roboto Serif;
+}
+
+.icon {
+  margin-right: 10px;
+  width: 23px;
+  height: 23px;
+  text-align: center;
+}
+
+.align-right {
+  margin-left: auto;
+}
+
+#footer {
+  padding: 50px;
+}
+
+#main {
+  padding: 50px;
+}
+
+#logo {
+  color: #B84B9A;
+  leading-trim: both;
+  text-edge: cap;
+  font-family: Modak;
+  font-size: 50px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
+
+#logo img {
+  width: 50px;
+  height: 50px;
+  margin-right: 25px;
+}
+
+.link {
+  color: #5F5F5F;
+  leading-trim: both;
+  text-edge: cap;
+  font-family: Roboto Serif;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  margin-right: 20px;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.t-head {
+  text-align: center;
+  color: #5C5C5C;
+  leading-trim: both;
+  text-edge: cap;
+  font-family: Work Sans;
+  font-size: 25px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  font-variant: all-small-caps; 
+}
+
+.ft-number {
+  text-align: center;
+  leading-trim: both;
+  text-edge: cap;
+
+  /* Cell/Desktop */
+  font-family: Cherry Bomb;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
+
+.ft-text {
+  color: #FFF;
+  font-family: Modak;
+}
+
+.info-1 {
+  cursor: pointer;
+  display: flex;
+  width: 80px;
+  height: 58px;
+  padding: 25px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  border-radius: 15px;
+  border: 2px solid #B84B9A;
+  color: #B84B9A !important;
+}
+
+.info-2 {
+  cursor: pointer;
+  display: flex;
+  width: 80px;
+  height: 58px;
+  padding: 25px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  border-radius: 15px;
+  background: #B84B9A;
+  color: #FFFFFF;
+}
+
+.no-white-space {
+  white-space: nowrap;
+}
+
+#navbarNav {
+  margin-left: 60px;
+}
+
+#claim-btn {
+  cursor: pointer;
+  padding: 10px;
+}
+
+#claim-btn h1 {
+  margin: 0;
+  color: #000;
+}
+
+#claim-btn:hover {
+  border-radius: 10px;
+  background: white;
+  filter: invert(1);
+}
+
+#mobile-banner {
+  padding-left: 60px;
+  padding-right: 20px;
+}
+
+/* Medium queries */
+@media (max-width: 1200px) {
+  #logo {
+    font-size: 30px;
+  }
+
+  #logo img {
+    width: 30px;
+    height: 30px;
+    margin-right: 20px;
+  }
+
+  #main {
+    padding: 25px;
+  }
+
+  #footer {
+    padding: 25px;
+    justify-content: center;
+  }
+
+  #banner-bt {
+    justify-content: center !important;
+  }
+
+  #claim-btn {
+    margin: 50px;
+    padding: 10px;
+    border-radius: 10px;
+    background: white;
+    filter: invert(1);
+  }
+}
+
+/* Bootstrap md */
+@media (max-width: 991px) {
+  #mobile-banner {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+  }
+
+}
+
+/* Small queries */
+@media (max-width: 600px) {
+  #logo span {
+    display: none;
+  }
+
+  #logo img {
+    width: 40px;
+    height: 40px;
+    margin-right: 0px;
+  }
+
+  #footer span {
+    font-size: 15px;
+    font-weight: 500px;
+  }
+
+  .icon {
+    width: 15px;
+    height: 15px;
+  }
+
+  #claim-btn {
+    padding: 25px;
+  }
+
+  #status-info {
+    display: none !important;
+  }
+
+  #claim-btn {
+    margin: 20px;
+  }
+
+  thead th:nth-child(3) {
+    display: none !important;
+  }
+
+  tbody td:nth-child(2) {
+    display: none !important;
+  }
+}
+
