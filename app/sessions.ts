@@ -14,7 +14,7 @@ const { getSession, commitSession, destroySession } =
     {
       cookie: {
         name: "smoothly",
-        secrets: ["lol"],
+        secrets: ["loisdfasdfadfl"],
       },
     }
   );

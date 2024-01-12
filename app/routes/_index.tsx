@@ -12,8 +12,9 @@ import type { MetaFunction } from "@remix-run/node";
 import { Header, Footer, App } from "./components";
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { useLoaderData, useRouteError } from "@remix-run/react";
 import { getSession, commitSession } from "../sessions";
+import { Validators } from './mock/validators';
 
 export const meta: MetaFunction = () => {
   return [
@@ -39,7 +40,7 @@ const wagmiConfig = createConfig({
 const server = 'https://node-goerli.smoothly.money';//'http://localhost:4040' 
 const getOracleData = async (address: string): Promise<any> => {
   try {
-    const validators  = await (
+    const { data } = await (
       await fetch(`${server}/validators/${address}`)
     ).json();
     const withdrawals  = await (
@@ -52,7 +53,7 @@ const getOracleData = async (address: string): Promise<any> => {
       await fetch(`${server}/poolstats`)
     ).json();
     return { 
-      validators: validators, 
+      validators: Validators,//data, 
       pool: pool,
       withdrawals: withdrawals,
       exits: exits
@@ -80,9 +81,11 @@ export const loader = async ({
     } = await getOracleData(siwe.data.address);
 
     // Update session
+    /*
     session.has('validators')
       ? validators = session.get('validators')
       : session.set('validators', validators);
+    */
 
     session.has('withdrawals')
       ? withdrawals = session.get('withdrawals')
@@ -183,5 +186,10 @@ const Dashboard = () => {
       <Footer/>
     </div>
   );
+}
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+  console.error(error);
 }
 

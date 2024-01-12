@@ -29,7 +29,6 @@ export const action = async ({
         }
       }
 
-      session.set('validators', { data })
     }
 
     const cookie = await commitSession(session);

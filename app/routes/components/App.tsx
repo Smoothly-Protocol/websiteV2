@@ -5,8 +5,6 @@ import { useAccount, useWalletClient, usePublicClient } from 'wagmi';
 import { getTimeRemaining, formatEthAmount } from '../utils';
 import { useLoaderData } from "@remix-run/react";
 
-//import { Validators } from '../mock/validators';
-
 export const SelectContext = createContext();
 
 export const App = () => {
@@ -188,7 +186,7 @@ export const App = () => {
       <div className="d-flex justify-content-center mt-5 mb-3 table-responsive">
         <SelectContext.Provider value={{selectedS, selectedE, setSelectedS, setSelectedE}}>
           <Table 
-            validators={validators ? validators.data : []} 
+            validators={validators ? validators : []} 
             WithdrawBond={WithdrawBond}
             exits={exits}
           />

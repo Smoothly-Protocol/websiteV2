@@ -42,7 +42,7 @@ td:last-child {
 }
 
 .modak {
-  font-family: Modak !important;
+  font-family: Cherry Bomb !important;
 }
 
 .table-responsive {
@@ -52,15 +52,18 @@ td:last-child {
 
 td:nth-child(2) {
   padding-right: 0 !important;
+  width: 300px;
 }
 
 td:nth-child(3) {
   padding-left: 0 !important;
   padding-right: 0 !important;
+  width: 300px;
 }
 
 td:nth-child(4) {
   padding-left: 0 !important;
+  width: 300px;
 }
 
 tr:hover td:nth-child(2) {
