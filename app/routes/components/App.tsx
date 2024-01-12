@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { Table } from "./Table";
+import { Modal } from "./disclaimer";
 import { NETWORK, useContract } from "../utils";
 import { useAccount, useWalletClient, usePublicClient } from 'wagmi';
 import { getTimeRemaining, formatEthAmount } from '../utils';
@@ -129,12 +130,15 @@ export const App = () => {
   return(
     <div className="container-fluid d-flex flex-column pt-5 pb-3">
 
+      <Modal selected={selectedS} Subscribe={Subscribe}/>
+
       <div id="mobile-banner">
         <div className="d-flex justify-content-between">
           <h1 className="title m-0">My validators</h1>
           <div className="d-none d-lg-block">
             <div className="d-flex align-items-center">
               {/* Select Subscribers */}
+                {/*onClick={() => Subscribe()}*/}
               {selectedS.length > 0 && 
               <>
               <button 
@@ -146,8 +150,9 @@ export const App = () => {
               <button 
                 type="button" 
                 className="btn btn-dark fs-3 ms-4 modak"
-                onClick={() => Subscribe()}>
-                Subscribe {selectedS.length} validators</button>
+                data-bs-toggle="modal" data-bs-target="#exampleModal">
+                Subscribe {selectedS.length} validators
+              </button>
               </>
               }
               

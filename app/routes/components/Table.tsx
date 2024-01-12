@@ -208,6 +208,22 @@ const Action3 = (props: {validator: any}) => {
       )
     
     }
+    case 'Pending': {
+      const isSelected = selectedE.includes(index);
+      return (
+        <div 
+          className={`t-container-3 ${isSelected ? "grey-btn" : "purple-btn-hover"}`}
+          onMouseEnter={(e: any) => {changeTextOver(e, "purple", `${isSelected ? "Selected" : "Request Exit >"}`)}}
+          onMouseLeave={(e: any) => {changeTextOut(e, "purple", rewards)}}
+          onClick={() => updateSelectionE()}
+        >
+          <span className="ft-number">
+           { isSelected ? "Selected" : rewards}
+          </span>
+        </div>
+      )
+    
+    }
     case 'Exit Requested': {
         {/*<div 
           className="t-container-3 grey-btn-hover" 
