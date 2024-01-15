@@ -15,12 +15,13 @@ export const action = async ({
 
     if (session.has('withdrawals')) {
       let withdrawals = session.get('withdrawals');
-      let { data } = session.get('validators');
+      let validators = session.get('validators');
 
       for(let index of withdrawals.proof[1]) {
-        for(let [i, validator] of data.entries()) {
+        for(let [i, validator] of validators.entries()) {
           if(index === validator.index) {
-                data[i].rewards = { hex: "0x0"};
+              validators[i].rewards = { hex: "0x0"};
+              console.log("update claim requested:", index);
           }
         }
       }
@@ -42,7 +43,6 @@ export const action = async ({
       } 
     );
   } catch(err: any) {
-    console.log(err);
     return json({ ok: false }, 401)
   }
 };

@@ -102,9 +102,11 @@ const Action2 = (props: {validator: any, WithdrawBond: any, exits: any}) => {
 
   const AddBond = async () => {
     try {
+      /*
       const contract = useContract(walletClient);
       const tx = await contract.addStake(index, {value: NETWORK.missFee});
       await tx.wait();
+      */
       const verifyRes = await fetch('/addbond', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

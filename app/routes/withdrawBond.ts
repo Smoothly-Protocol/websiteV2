@@ -15,17 +15,18 @@ export const action = async ({
 
     if (session.has('exits')) {
       let exits = session.get('exits');
-      let { data } = session.get('validators');
+      let validators = session.get('validators');
 
       // Update validators
       for(let index of exits.proof[1]) {
-        for(let [i, validator] of data.entries()) {
+        for(let [i, validator] of validators.entries()) {
           if(index === validator.index) {
-            data[i].stake = { hex: "0x0"};
-            data[i].exitRequested = false;
-            if(!data[i].firstBlockProposed) {
-              data[i].rewards = { hex: "0x0"};
+            validators[i].stake = { hex: "0x0"};
+            validators[i].exitRequested = false;
+            if(!validators[i].firstBlockProposed) {
+              validators[i].rewards = { hex: "0x0"};
             }
+            console.log("update withdraw bond", index);
           }
         }
       }

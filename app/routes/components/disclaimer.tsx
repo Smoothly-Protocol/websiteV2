@@ -12,8 +12,12 @@ const copyText = async (e: any) => {
 export const Modal = (props: {selected: number[], Subscribe: any}) => {
 
   const execute = () => {
-    //TODO: Verify that all boxes are checked
-     props.Subscribe(); 
+    const disclaimer1 = window.document.getElementById("disclaimer1").checked;
+    const disclaimer2 = window.document.getElementById("disclaimer2").checked;
+    const disclaimer3 = window.document.getElementById("disclaimer3").checked;
+    if(disclaimer1 && disclaimer2 && disclaimer3) {
+      props.Subscribe(); 
+    }
   }
 
   return(
@@ -44,15 +48,15 @@ export const Modal = (props: {selected: number[], Subscribe: any}) => {
             <div className="p-5 pt-0">
               <div className="p-2 disclaimer-check">
                 <input className="me-2" type="checkbox" id="disclaimer1" name="disclaimer1"/>
-                <label for="disclaimer1">I’ve read the Smoothly documentation and understand how the pool functions</label>
+                <label htmlFor="disclaimer1">I’ve read the Smoothly documentation and understand how the pool functions</label>
               </div>
               <div className="p-2 disclaimer-check">
                 <input className="me-2" type="checkbox" id="disclaimer2" name="disclaimer2"/>
-                <label for="disclaimer2">I know that running MEV Boost and subscribing to one or more of the approved relays is required</label>
+                <label htmlFor="disclaimer2">I know that running MEV Boost and subscribing to one or more of the approved relays is required</label>
               </div>
               <div className="p-2 disclaimer-check">
                 <input className="me-2" type="checkbox" id="disclaimer3" name="disclaimer3"/>
-                <label for="disclaimer3">I’ve verified the fee recipient is &nbsp; </label>
+                <label htmlFor="disclaimer3">I’ve verified the fee recipient is &nbsp; </label>
                 <span onClick={(e: any) => copyText(e)} id="fee-recipient">{NETWORK.poolAddress} {copyBtn()}</span>
               </div>
             </div>
@@ -62,7 +66,7 @@ export const Modal = (props: {selected: number[], Subscribe: any}) => {
             <button 
               type="button" 
               className="btn btn-dark btn-modak fs-4 m-0"
-              onClick={() => execute()}>
+              onClick={(e: any) => execute(e)}>
               Subscribe {props.selected.length} validators {'>'}</button>
           </div>
 

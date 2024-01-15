@@ -15,11 +15,12 @@ export const action = async ({
     );
 
     if (session.has('validators')) {
-      let { data } = session.get('validators');
+      let validators = session.get('validators');
       const eth1Addr = session.get('siwe').data.address;
+
       // Update validators
       for(let index of indexes) {
-        for(let [i, validator] of data.entries()) {
+        for(let [i, validator] of validators.entries()) {
           if(index === validator.index) {
             if(!validator.rewards) {
               const newUser: Validator = {
@@ -36,21 +37,20 @@ export const action = async ({
                  active: true,
                  deactivated: false
               };
-              data[i] = newUser;
+              validators[i] = newUser;
               console.log("update registration:", index);
             } else if (validator.deactivated) {
               console.log("validator deactivated:", index);
             } else if(!validator.active) {
-              data[i].active = true;
-              data[i].stake = { hex: `0x${NETWORK.stakeFee.toString(16)}` };
-              data[i].firstBlockProposed = false;
+              validators[i].active = true;
+              validators[i].stake = { hex: `0x${NETWORK.stakeFee.toString(16)}` };
+              validators[i].firstBlockProposed = false;
             } else if(validator.active) {
               console.log("validator already registered", index);
             }
           }
         }
       }
-      session.set('validators', { data })
     }
 
     const cookie = await commitSession(session);

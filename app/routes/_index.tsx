@@ -14,7 +14,9 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { json } from "@remix-run/node";
 import { useLoaderData, useRouteError } from "@remix-run/react";
 import { getSession, commitSession } from "../sessions";
-import { Validators } from './mock/validators';
+import { Validators } from './mock/validators'; // Remove - only testing
+import { getValidators, getWithdrawals, getExits, getPool } from './poolData.ts';
+import { terms } from './utils';
 
 export const meta: MetaFunction = () => {
   return [
@@ -37,35 +39,10 @@ const wagmiConfig = createConfig({
   publicClient
 });
 
-const server = 'https://node-goerli.smoothly.money';//'http://localhost:4040' 
-const getOracleData = async (address: string): Promise<any> => {
-  try {
-    const { data } = await (
-      await fetch(`${server}/validators/${address}`)
-    ).json();
-    const withdrawals  = await (
-      await fetch(`${server}/tree/withdrawals/${address}`)
-    ).json();
-    const exits  = await (
-      await fetch(`${server}/tree/exits/${address}`)
-    ).json();
-    const pool  = await (
-      await fetch(`${server}/poolstats`)
-    ).json();
-    return { 
-      validators: Validators,//data, 
-      pool: pool,
-      withdrawals: withdrawals,
-      exits: exits
-    };
-  } catch {
-    throw "Couldn't get data from oracle";
-  }
-}
-
 export const loader = async ({
   request,
 }: LoaderFunctionArgs) => {
+  try {
   const session = await getSession(
     request.headers.get("Cookie")
   );
@@ -73,36 +50,34 @@ export const loader = async ({
   // Verify auth
   if(session.has('siwe')) {
     const siwe = session.get('siwe');
-    let { 
-      validators, 
-      pool,
-      withdrawals,
-      exits
-    } = await getOracleData(siwe.data.address);
+    const addr = siwe.data.address;
+    let validators, pool, withdrawals, exits;
+
+    // Query pool data
+    pool = await getPool();
 
     // Update session
-    /*
     session.has('validators')
-      ? validators = session.get('validators')
-      : session.set('validators', validators);
-    */
+      ? 0 
+      : session.set('validators', (await getValidators(addr)));
 
     session.has('withdrawals')
-      ? withdrawals = session.get('withdrawals')
-      : session.set('withdrawals', withdrawals);
+      ? 0 
+      : session.set('withdrawals', (await getWithdrawals(addr)));
 
     session.has('exits')
-      ? exits = session.get('exits')
-      : session.set('exits', exits);
+      ? 0 
+      : session.set('exits', (await getExits(addr)));
+
 
     const cookie = await commitSession(session);
 
     return json({
       status: "authenticated",
       pool: pool, 
-      validators: validators,
-      withdrawals: withdrawals,
-      exits: exits
+      validators: session.get("validators"),
+      withdrawals: session.get("withdrawals"),
+      exits: session.get("exits")
     }, {
       headers: {
         "Set-Cookie": cookie,
@@ -110,6 +85,9 @@ export const loader = async ({
     });
   } else {
     return json({ status: "unauthenticated" });
+  }
+  } catch(err) {
+    console.log(err)
   }
 };
 
@@ -125,7 +103,7 @@ export default function Index() {
       return new SiweMessage({
         domain: window.location.host,
         address,
-        statement: 'Authenticate to use Smoothly.',
+        statement: terms,
         uri: window.location.origin,
         version: '1',
         chainId,

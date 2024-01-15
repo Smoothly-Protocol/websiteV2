@@ -7,3 +7,4 @@ export {
 } from './helpers';
 
 export { NETWORK } from './constants';
+export { terms } from './terms';

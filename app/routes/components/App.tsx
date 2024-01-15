@@ -27,6 +27,10 @@ export const App = () => {
 
   load();
 
+  useEffect(() => {
+    console.log("updating state");
+  }, [validators, withdrawals, exits]);
+
   const time = () => {
     if(days > 0) {
      return `${days} days`; 
@@ -62,12 +66,14 @@ export const App = () => {
   // Web3 Action calls
   const Subscribe = async () => {
     try {
+      /*
       const contract = useContract(walletClient);
       const tx = await contract.registerBulk(
         selectedS, 
         { value: NETWORK.stakeFee * BigInt(selectedS.length) }
       );
       await tx.wait();
+      */
       const verifyRes = await fetch('/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -81,6 +87,7 @@ export const App = () => {
 
   const Claim = async () => {
     try {
+      /*
       const contract = useContract(walletClient);
       const tx = await contract.withdrawRewards(
         withdrawals.proof[0], 
@@ -88,6 +95,7 @@ export const App = () => {
         withdrawals.proof[2].hex
       );
       await tx.wait();
+      */
       await fetch('/claim', { method: 'POST' });
       window.location.href = '/';
     } catch(err: any) {
@@ -97,9 +105,11 @@ export const App = () => {
 
   const RequestExit = async () => {
     try {
+      /*
       const contract = useContract(walletClient);
       const tx = await contract.requestExit(selectedE);
       await tx.wait();
+      */
       const verifyRes = await fetch('/exits', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -113,6 +123,7 @@ export const App = () => {
 
   const WithdrawBond = async () => {
     try {
+      /*
       const contract = useContract(walletClient);
       const tx = await contract.withdrawStake(
         exits.proof[0], 
@@ -120,6 +131,7 @@ export const App = () => {
         exits.proof[2].hex
       );
       await tx.wait();
+      */
       await fetch('/withdrawBond', { method: 'POST' });
       window.location.href = '/';
     } catch(err: any) {
@@ -130,7 +142,7 @@ export const App = () => {
   return(
     <div className="container-fluid d-flex flex-column pt-5 pb-3">
 
-      <Modal selected={selectedS} Subscribe={Subscribe}/>
+      <Modal selected={selectedS} Subscribe={Subscribe}/> 
 
       <div id="mobile-banner">
         <div className="d-flex justify-content-between">
@@ -138,7 +150,6 @@ export const App = () => {
           <div className="d-none d-lg-block">
             <div className="d-flex align-items-center">
               {/* Select Subscribers */}
-                {/*onClick={() => Subscribe()}*/}
               {selectedS.length > 0 && 
               <>
               <button 

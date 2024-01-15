@@ -15,14 +15,14 @@ export const action = async ({
     );
 
     if (session.has('validators')) {
-      let { data } = session.get('validators');
+      let validators = session.get('validators');
 
       // Update validators
       for(let index of indexes) {
-        for(let [i, validator] of data.entries()) {
+        for(let [i, validator] of validators.entries()) {
           if(index === validator.index) {
             if(validator.exitRequested === false) {
-              data[i].exitRequested = true;
+              validators[i].exitRequested = true;
               console.log("update exit requested:", index);
             } 
           }
@@ -45,7 +45,6 @@ export const action = async ({
       } 
     );
   } catch(err: any) {
-    console.log(err);
     return json({ ok: false }, 401)
   }
 };

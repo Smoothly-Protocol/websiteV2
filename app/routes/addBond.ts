@@ -15,13 +15,13 @@ export const action = async ({
     );
 
     if (session.has('validators')) {
-      let { data } = session.get('validators');
+      let validators = session.get('validators');
 
       // Update validators
-      for(let [i, validator] of data.entries()) {
+      for(let [i, validator] of validators.entries()) {
         if(index === validator.index) {
-            data[i].stake = { 
-              hex: `0x${(BigInt(data[i].stake.hex) + NETWORK.missFee).toString(16)}`
+            validators[i].stake = { 
+              hex: `0x${(BigInt(validators[i].stake.hex) + NETWORK.missFee).toString(16)}`
             };
             console.log("added bond requested:", index);
         }
