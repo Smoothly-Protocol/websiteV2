@@ -4,7 +4,9 @@ import {
   status,
   state,
   NETWORK, 
-  useContract
+  useContract,
+  tooltip1,
+  tooltip2
 } from '../utils';
 import { useWalletClient } from 'wagmi';
 import React, { useState, useContext, useEffect } from 'react';
@@ -17,7 +19,14 @@ export const Table = (props: {validators: any, WithdrawBond: any, exits: any}) =
     setSelectedS, setSelectedE
   } = useContext(SelectContext);
 
+  
   useEffect(() => {
+    const loadToolTips = () => {
+      const tooltipTriggerList = window.document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    }
+
+    loadToolTips();
   }, [selectedE, selectedS]);
 
   if(Validators.length > 0) {
@@ -70,12 +79,20 @@ export const Table = (props: {validators: any, WithdrawBond: any, exits: any}) =
             </td>
             <td className="no-white-space">
             {state(validator) == "Good" ? (
-              <div className="info-1">
-                <span className="ft-number">?</span>
+              <div 
+                className="info-1" 
+                data-bs-toggle="tooltip" 
+                data-bs-placement="top"
+                data-bs-title={tooltip1(validator)}>
+                <span className="ft-text">?</span>
               </div>
             ) : (
-              <div className="info-2">
-                <span className="ft-number">!</span>
+              <div 
+                className="info-2" 
+                data-bs-toggle="tooltip" 
+                data-bs-placement="top"
+                data-bs-title={tooltip2(validator)}>
+                <span className="ft-text">!</span>
               </div>
             )}
             </td>
@@ -99,6 +116,11 @@ const Action2 = (props: {validator: any, WithdrawBond: any, exits: any}) => {
   const stake = props.validator.stake 
     ? formatEthAmount(props.validator.stake.hex) 
     : "0.00"; 
+
+  let fee = FixedNumber.fromValue(NETWORK.stakeFee); 
+  let fixedStake = props.validator.stake 
+    ? FixedNumber.fromValue(props.validator.stake.hex) 
+    : null; 
 
   const AddBond = async () => {
     try {
@@ -133,11 +155,8 @@ const Action2 = (props: {validator: any, WithdrawBond: any, exits: any}) => {
     )
   }
 
-  switch(penalized) {
-    case 'Penalized': {
-      let fee = FixedNumber.fromValue(NETWORK.stakeFee);
-      let needs = fee.sub(FixedNumber.fromValue(props.validator.stake.hex));
-      needs = formatEthAmount(NETWORK.missFee);
+  if(fixedStake && fee.gt(fixedStake) && props.validator.active) {
+      let needs = formatEthAmount(NETWORK.missFee);
       return (
         <div 
           className="t-container-2 purple-btn-hover"
@@ -150,15 +169,14 @@ const Action2 = (props: {validator: any, WithdrawBond: any, exits: any}) => {
           </span>
         </div>
       )
-    } 
-    default: 
-      return(
-        <div className="t-container-2">
-          <span className="ft-number">
-            {stake}
-          </span>
-        </div>
-      )
+  } else{
+    return(
+      <div className="t-container-2">
+        <span className="ft-number">
+          {stake}
+        </span>
+      </div>
+    )
   }
 };
 
@@ -188,7 +206,7 @@ const Action3 = (props: {validator: any}) => {
       return (
         <div className={`t-container-3 ${isSelected ? "grey-btn" : "purple-btn"}`} 
           onClick={() => updateSelectionS()}>
-          <span className="ft-number">
+          <span className="ft-text">
            { isSelected ? "Selected" : 'Subscribe >'}
           </span>
         </div>
@@ -258,7 +276,7 @@ const changeTextOver = (x: any, color: string, text: string) => {
   x.target.classList.remove(`${color}-btn-hover`);
   x.target.classList.add(`${color}-btn`);
   x.target.innerHTML = `
-    <span class="ft-number">
+    <span class="ft-text">
       ${text}
     </span>
   `;

@@ -34,7 +34,7 @@ export const Modal = (props: {selected: number[], Subscribe: any}) => {
               <p className="disclaimer fs-5 mt-2">Please read and check all statements before subscribing:</p>
             </div>
 
-            <button type="button" className="btn btn-secondary btn-modak fs-4 align-top" data-bs-dismiss="modal" aria-label="Close"> {"< Back"}</button>
+            <button type="button" className="btn btn-secondary fs-5 align-top" data-bs-dismiss="modal" aria-label="Close">BACK</button>
           </div>
 
           <div className="modal-body p-2">
@@ -65,9 +65,9 @@ export const Modal = (props: {selected: number[], Subscribe: any}) => {
           <div className="modal-footer p-5 pt-0"> 
             <button 
               type="button" 
-              className="btn btn-dark btn-modak fs-4 m-0"
+              className="btn btn-dark fs-5 m-0"
               onClick={(e: any) => execute(e)}>
-              Subscribe {props.selected.length} validators {'>'}</button>
+              SUBSCRIBE {props.selected.length} VALIDATORS</button>
           </div>
 
         </div>

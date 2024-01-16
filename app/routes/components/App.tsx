@@ -27,10 +27,6 @@ export const App = () => {
 
   load();
 
-  useEffect(() => {
-    console.log("updating state");
-  }, [validators, withdrawals, exits]);
-
   const time = () => {
     if(days > 0) {
      return `${days} days`; 
@@ -146,7 +142,7 @@ export const App = () => {
 
       <div id="mobile-banner">
         <div className="d-flex justify-content-between">
-          <h1 className="title m-0">My validators</h1>
+          <h1 className="title m-0 fs-3">MY VALIDATORS</h1>
           <div className="d-none d-lg-block">
             <div className="d-flex align-items-center">
               {/* Select Subscribers */}
@@ -188,7 +184,7 @@ export const App = () => {
               {(selectedS.length + selectedE.length) == 0 &&
               <>
               <img src="img/date.svg" className="icon"/>
-              <p className="m-0 fs-4 secondary"><b>{time()}</b> to next rebalancing</p>
+              <p className="m-0 fs-4 secondary"><b>{time()}</b> left in the current rewards cycle</p>
               </>
               }
             </div>
@@ -236,7 +232,7 @@ export const App = () => {
         <div 
           className="d-flex align-items-center" id="claim-btn" 
           onClick={() => Claim()}>
-          <h1 className="title">Claim {Rewards()}</h1>
+          <h1>Claim {Rewards()}</h1>
           <img src="img/Ethereum.svg"/>
         </div>
       </div>

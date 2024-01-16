@@ -2,11 +2,10 @@
 body, form, fieldset, ol, ul, li, h1, h2, h3, h4, h5, h6, p {
   margin:0;
   padding:0;
-  font-family: Modak;
+  font-family: Lato;
   font-weight: 400;
   font-size: 25px;
-  color: #5F5F5F;
-  background: #F9F7ED !important;
+  color: #000;
 }
 
 img {
@@ -22,11 +21,11 @@ table {
 th {
   top: 0;
   position: sticky;
-  background-color: #F9F7ED !important;
+  background-color: #EAEAEA !important;
 }
 
 td {
-  background-color: #F9F7ED !important;
+  background-color: #EAEAEA !important;
   color: #5F5F5F !important;
 }
 
@@ -39,11 +38,11 @@ td:last-child {
 }
 
 #main {
-  background-color: #F9F7ED;
+  background-color: #EAEAEA;
 }
 
 .modak {
-  font-family: Cherry Bomb !important;
+  font-family: Leto !important;
 }
 
 .table-responsive {
@@ -92,7 +91,7 @@ tr:hover .t-container-3 {
 
 tr:hover .purple-btn-hover{
   cursor: pointer;
-  background: #B84B9A80 !important;
+  background: #FC8DBB !important;
   border: 3px solid rgba(95, 95, 95, 0) !important;
   color: white;
 }
@@ -112,9 +111,9 @@ tr:hover .grey-btn-hover{
 }
 
 .purple-btn {
-  background: #BF5DA4 !important;
-  border: 3px solid #BF5DA4 !important;
-  color: white;
+  background: #FC8DBB !important;
+  border: 3px solid #FC8DBB !important;
+  color: #000;
   cursor: pointer;
 }
 
@@ -142,16 +141,8 @@ tr:hover .grey-btn-hover{
 
 /* Modal */
 .modal-content {
-  background: #F9F7ED !important;
-}
-
-.modal-title {
-  font-family: Work Sans !important;
-}
-
-.btn-modak {
-  font-family: Modak !important;
-  color: #fff;
+  font-family: Leto !important;
+  background: #EAEAEA !important;
 }
 
 .modal-header {
@@ -164,11 +155,6 @@ tr:hover .grey-btn-hover{
 
 .modal-footer {
   border-top: none !important;
-}
-
-.disclaimer-check {
-  font-family: Roboto Serif !important;
-  color: #000 !important;
 }
 
 #fee-recipient {
@@ -196,17 +182,18 @@ tr:hover .grey-btn-hover{
 /* Global */
 
 .title {
-  color: #5F5F5F;
+  color: #000;
   leading-trim: both;
   text-edge: cap;
+  font-family: Lato;
   font-style: normal;
-  font-weight: 400;
+  font-weight: 900;
   line-height: normal;
 }
 
 .secondary {
   font-weight: 500;
-  font-family: Roboto Serif;
+  color: #000;
 }
 
 .icon {
@@ -229,7 +216,7 @@ tr:hover .grey-btn-hover{
 }
 
 #logo {
-  color: #B84B9A;
+  color: #000;
   leading-trim: both;
   text-edge: cap;
   font-family: Modak;
@@ -246,14 +233,17 @@ tr:hover .grey-btn-hover{
 }
 
 .link {
-  color: #5F5F5F;
+  color: #000;
   leading-trim: both;
   text-edge: cap;
-  font-family: Roboto Serif;
   font-style: normal;
   font-weight: 400;
   line-height: normal;
   margin-right: 20px;
+}
+
+.link a {
+  color: #000;
 }
 
 .link:hover {
@@ -262,10 +252,8 @@ tr:hover .grey-btn-hover{
 
 .t-head {
   text-align: center;
-  color: #5C5C5C;
   leading-trim: both;
   text-edge: cap;
-  font-family: Work Sans;
   font-size: 25px;
   font-style: normal;
   font-weight: 400;
@@ -286,8 +274,15 @@ tr:hover .grey-btn-hover{
 }
 
 .ft-text {
-  color: #FFF;
-  font-family: Modak;
+  text-align: center;
+  leading-trim: both;
+  text-edge: cap;
+  font-family: Lato !important;
+  font-size: 25px;
+  font-style: normal;
+  font-weight: 900;
+  line-height: normal;
+  text-transform: uppercase;
 }
 
 .info-1 {
@@ -300,8 +295,8 @@ tr:hover .grey-btn-hover{
   align-items: center;
   gap: 10px;
   border-radius: 15px;
-  border: 2px solid #B84B9A;
-  color: #B84B9A !important;
+  border: 2px solid #FC8DBB;
+  color: #FC8DBB !important;
 }
 
 .info-2 {
@@ -314,7 +309,7 @@ tr:hover .grey-btn-hover{
   align-items: center;
   gap: 10px;
   border-radius: 15px;
-  background: #B84B9A;
+  background: #FC8DBB;
   color: #FFFFFF;
 }
 
@@ -332,8 +327,15 @@ tr:hover .grey-btn-hover{
 }
 
 #claim-btn h1 {
-  margin: 0;
+  margin-top: 15px;
   color: #000;
+  leading-trim: both;
+  text-edge: cap;
+  font-family: Modak;
+  font-size: 50px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
 }
 
 #claim-btn:hover {

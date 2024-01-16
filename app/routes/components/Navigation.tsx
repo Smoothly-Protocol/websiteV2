@@ -1,5 +1,7 @@
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useState, useEffect } from 'react';
+import { useLoaderData } from "@remix-run/react";
+import { usePublicClient } from 'wagmi';
 
 export const Header = () => {
   const [mobile, setMobile] = useState(false);
@@ -23,7 +25,7 @@ export const Header = () => {
         <div className="container-fluid" >
           <a id="logo"className="navbar-brand" href="#">
             <img 
-              src="img/logo.svg" 
+              src="img/Smoothly.svg" 
               alt="Logo" 
               className="d-inline-block align-middle"
               />
@@ -67,6 +69,19 @@ export const Header = () => {
 }
 
 export const Footer = () => {
+  const { pool } = useLoaderData<typeof loader>();
+  const [gas, setGas] = useState(38.51);
+  const provider = usePublicClient();
+
+  useEffect(() => {
+    const loadGas = async () => {
+      const gasPrice = await provider.getGasPrice(); // wei
+      const gwei = parseFloat(Number(gasPrice) * 10 ** -9).toFixed(2);
+      setGas(gwei);
+    } 
+    loadGas()
+  },[gas]);
+
   return (
     <footer className="navbar pt-5">
       <div className="container-fluid p-0" id="footer">
@@ -79,7 +94,7 @@ export const Footer = () => {
                 alt="Subscriber" 
                 className="icon"
                 />
-               <span>3798 subscribers</span>
+               <span>{pool.awaiting_activation + pool.activated} subscribers</span>
             </li>
             <li className="link d-flex align-items-center fs-4">
               <img 
@@ -95,7 +110,7 @@ export const Footer = () => {
                 alt="Gas" 
                 className="icon"
                 />
-               <span>38.51 gwei</span>
+               <span>{gas} gwei</span>
             </li>
           </ul> 
         </div>

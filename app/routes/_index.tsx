@@ -47,19 +47,20 @@ export const loader = async ({
     request.headers.get("Cookie")
   );
   
+  // Query pool data
+  let pool = await getPool();
+
   // Verify auth
   if(session.has('siwe')) {
     const siwe = session.get('siwe');
     const addr = siwe.data.address;
-    let validators, pool, withdrawals, exits;
+    let validators, withdrawals, exits;
 
-    // Query pool data
-    pool = await getPool();
 
     // Update session
     session.has('validators')
       ? 0 
-      : session.set('validators', (await getValidators(addr)));
+      : session.set('validators', Validators);
 
     session.has('withdrawals')
       ? 0 
@@ -84,7 +85,7 @@ export const loader = async ({
       }
     });
   } else {
-    return json({ status: "unauthenticated" });
+    return json({ status: "unauthenticated", pool: pool});
   }
   } catch(err) {
     console.log(err)
