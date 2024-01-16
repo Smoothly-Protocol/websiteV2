@@ -1,4 +1,7 @@
 export const terms = `
+
+By signing this message, you agree to and understand the following Terms of Service:
+
 Terms of Service
 
 1. Use of the Services

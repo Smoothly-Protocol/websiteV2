@@ -67,7 +67,7 @@ export const Modal = (props: {selected: number[], Subscribe: any}) => {
               type="button" 
               className="btn btn-dark fs-5 m-0 lato"
               onClick={(e: any) => execute(e)}>
-              DEPOSIT {formatEthAmount((Number(NETWORK.stakeFee) * props.selected.length).toString())} ETH AND SUBSCRIBE {props.selected.length} VALIDATORS</button>
+              Deposit {formatEthAmount((Number(NETWORK.stakeFee) * props.selected.length).toString())} ETH and subscribe {props.selected.length} validators</button>
           </div>
 
         </div>
