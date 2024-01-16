@@ -150,13 +150,13 @@ export const App = () => {
               <>
               <button 
                 type="button" 
-                className="btn btn-secondary fs-3 modak"
+                className="btn btn-secondary fs-3"
                 onClick={() => Cancel()}>
                 Cancel
               </button>
               <button 
                 type="button" 
-                className="btn btn-dark fs-3 ms-4 modak"
+                className="btn btn-dark fs-3 ms-4"
                 data-bs-toggle="modal" data-bs-target="#exampleModal">
                 Subscribe {selectedS.length} validators
               </button>
@@ -168,13 +168,13 @@ export const App = () => {
               <>
               <button 
                 type="button" 
-                className="btn btn-secondary fs-3 modak"
+                className="btn btn-secondary fs-3"
                 onClick={() => Cancel()}>
                 Cancel
               </button>
               <button 
                 type="button" 
-                className="btn btn-dark fs-3 ms-4 modak"
+                className="btn btn-dark fs-3 ms-4"
                 onClick={() => RequestExit()}>
                 Request Exit for {selectedE.length} validators</button>
               </>

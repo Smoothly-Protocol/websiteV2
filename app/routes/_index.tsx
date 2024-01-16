@@ -60,7 +60,7 @@ export const loader = async ({
     // Update session
     session.has('validators')
       ? 0 
-      : session.set('validators', Validators);
+      : session.set('validators', (await getValidators(addr)));
 
     session.has('withdrawals')
       ? 0 

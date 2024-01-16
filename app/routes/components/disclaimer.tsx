@@ -1,4 +1,4 @@
-import { NETWORK } from "../utils";
+import { NETWORK, formatEthAmount } from "../utils";
 
 const copyText = async (e: any) => {
   try {
@@ -34,7 +34,7 @@ export const Modal = (props: {selected: number[], Subscribe: any}) => {
               <p className="disclaimer fs-5 mt-2">Please read and check all statements before subscribing:</p>
             </div>
 
-            <button type="button" className="btn btn-secondary fs-5 align-top" data-bs-dismiss="modal" aria-label="Close">BACK</button>
+            <button type="button" className="btn btn-secondary fs-5 align-top lato" data-bs-dismiss="modal" aria-label="Close">BACK</button>
           </div>
 
           <div className="modal-body p-2">
@@ -48,15 +48,15 @@ export const Modal = (props: {selected: number[], Subscribe: any}) => {
             <div className="p-5 pt-0">
               <div className="p-2 disclaimer-check">
                 <input className="me-2" type="checkbox" id="disclaimer1" name="disclaimer1"/>
-                <label htmlFor="disclaimer1">I’ve read the Smoothly documentation and understand how the pool functions</label>
+                <label className="lato fs-5" htmlFor="disclaimer1">I’ve read the Smoothly <a href="https://docs.smoothly.money" target="_blank">documentation</a>, <a href="https://docs.smoothly.money/terms-of-service" target="_blank">Terms of Service</a> and understand how the pool functions</label>
               </div>
               <div className="p-2 disclaimer-check">
                 <input className="me-2" type="checkbox" id="disclaimer2" name="disclaimer2"/>
-                <label htmlFor="disclaimer2">I know that running MEV Boost and subscribing to one or more of the approved relays is required</label>
+                <label className="lato fs-5" htmlFor="disclaimer2">I know that running MEV Boost and subscribing to one or more of the approved relays is required</label>
               </div>
               <div className="p-2 disclaimer-check">
                 <input className="me-2" type="checkbox" id="disclaimer3" name="disclaimer3"/>
-                <label htmlFor="disclaimer3">I’ve verified the fee recipient is &nbsp; </label>
+                <label className="lato fs-5" htmlFor="disclaimer3">I’ve verified the fee recipient is &nbsp; </label>
                 <span onClick={(e: any) => copyText(e)} id="fee-recipient">{NETWORK.poolAddress} {copyBtn()}</span>
               </div>
             </div>
@@ -65,9 +65,9 @@ export const Modal = (props: {selected: number[], Subscribe: any}) => {
           <div className="modal-footer p-5 pt-0"> 
             <button 
               type="button" 
-              className="btn btn-dark fs-5 m-0"
+              className="btn btn-dark fs-5 m-0 lato"
               onClick={(e: any) => execute(e)}>
-              SUBSCRIBE {props.selected.length} VALIDATORS</button>
+              DEPOSIT {formatEthAmount((Number(NETWORK.stakeFee) * props.selected.length).toString())} ETH AND SUBSCRIBE {props.selected.length} VALIDATORS</button>
           </div>
 
         </div>

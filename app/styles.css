@@ -46,8 +46,8 @@ td:last-child {
 }
 
 .table-responsive {
-  max-height: 600px;
-  min-height: 400px;
+  max-height: 400px;
+  min-height: 300px;
 }
 
 td:nth-child(2) {
@@ -162,7 +162,7 @@ tr:hover .grey-btn-hover{
   border-radius: 10px;
   background: var(--Buttons-CTAs, #B84B9A);
   color: white;
-  font-family: Cherry Bomb !important;
+  font-family: Lato !important;
   cursor: pointer;
 }
 
@@ -175,12 +175,10 @@ tr:hover .grey-btn-hover{
 }
 
 .disclaimer {
-  font-family: Roboto Serif !important;
   color: #5F5F5F;
 }
 
 /* Global */
-
 .title {
   color: #000;
   leading-trim: both;
@@ -191,6 +189,9 @@ tr:hover .grey-btn-hover{
   line-height: normal;
 }
 
+.lato {
+  font-family: Lato !important
+}
 .secondary {
   font-weight: 500;
   color: #000;
@@ -213,6 +214,7 @@ tr:hover .grey-btn-hover{
 
 #main {
   padding: 50px;
+  bottom: 0;
 }
 
 #logo {
