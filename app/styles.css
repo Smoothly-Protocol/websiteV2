@@ -39,6 +39,8 @@ td:last-child {
 
 #main {
   background-color: #EAEAEA;
+  height: 100vh;
+  padding: 50px;
 }
 
 .modak {
@@ -138,6 +140,11 @@ tr:hover .grey-btn-hover{
   padding: 10px;
 }
 
+/* Loader */
+.loader {
+  margin-right: 80px;
+}
+
 /* Modal */
 .modal-content {
   font-family: Leto !important;
@@ -209,11 +216,7 @@ tr:hover .grey-btn-hover{
 
 #footer {
   padding: 50px;
-}
-
-#main {
-  padding: 50px;
-  bottom: 0;
+  margin-top: auto;
 }
 
 #logo {
@@ -324,7 +327,7 @@ tr:hover .grey-btn-hover{
 
 #claim-btn {
   cursor: pointer;
-  padding: 10px;
+  padding-left: 10px;
 }
 
 #claim-btn h1 {

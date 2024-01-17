@@ -1,10 +1,11 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { Table } from "./Table";
-import { Modal } from "./disclaimer";
+import { Modal, SessionTerms } from "./disclaimer";
 import { NETWORK, useContract } from "../utils";
 import { useAccount, useWalletClient, usePublicClient } from 'wagmi';
 import { getTimeRemaining, formatEthAmount } from '../utils';
 import { useLoaderData } from "@remix-run/react";
+import { Loader } from "./Loader";
 
 export const SelectContext = createContext();
 
@@ -17,6 +18,7 @@ export const App = () => {
   const [minutes, setMinutes] = useState();
   const [selectedS, setSelectedS] = useState([]);
   const [selectedE, setSelectedE] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const load = async () => {
     const d = await getTimeRemaining();
@@ -83,6 +85,7 @@ export const App = () => {
 
   const Claim = async () => {
     try {
+      setLoading(true);
       /*
       const contract = useContract(walletClient);
       const tx = await contract.withdrawRewards(
@@ -91,11 +94,15 @@ export const App = () => {
         withdrawals.proof[2].hex
       );
       await tx.wait();
-      */
       await fetch('/claim', { method: 'POST' });
       window.location.href = '/';
+      */
+      setTimeout(() => {console.log('waiting')},5000);
+      setLoading(false);
     } catch(err: any) {
       console.log(err);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -135,10 +142,27 @@ export const App = () => {
     }
   }
 
+  const renderLoader = () => {
+    const modal = new window.bootstrap.Modal("#loaderModal", {keyboard: false, backdrop: 'static' });
+    if(loading) {
+      modal.show();
+    } else {
+      modal.hide();
+    }
+  }
+
+  useEffect(() => {
+    console.log("loading...");
+    renderLoader();
+  }, [loading]);
+
   return(
     <div className="container-fluid d-flex flex-column pt-5 pb-3">
 
+      {/* Modals */}
       <Modal selected={selectedS} Subscribe={Subscribe}/> 
+      <Loader />
+      <SessionTerms />
 
       <div id="mobile-banner">
         <div className="d-flex justify-content-between">
@@ -205,7 +229,7 @@ export const App = () => {
         </SelectContext.Provider>
       </div>
 
-      <div className="d-flex flex-wrap justify-content-between" id="banner-bt">
+      <div className="d-flex flex-wrap align-items-center justify-content-between" id="banner-bt">
         <div className="d-flex" id="status-info">
           <div className="d-flex align-items-center p-3">
             <img src="img/Unregistered.svg" className="icon"/>

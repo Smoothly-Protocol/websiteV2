@@ -111,7 +111,7 @@ export const tooltip2 = (validator: any): string => {
   switch(st1) {
     case 'Pending': {
       if(st2 == 'Missed block proposal') {
-        return "This validator is accruing rewards which will become claimable upon your next block proposal!";
+        return "This validator missed a block proposal, your accrued rewards will be added to the pool.";
       } else if(st2 == "Wrong fee recipient") {
         return "This validator proposed a block with an incorrect fee recipient, your accrued rewards will be added to the pool.";
       } else if(st2 == "Relay incorrect fee recipient") {

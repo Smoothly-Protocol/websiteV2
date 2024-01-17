@@ -103,7 +103,9 @@ export const Table = (props: {validators: any, WithdrawBond: any, exits: any}) =
   );
   } else {
     return (
-      <h1> No validators found </h1>
+      <div className="d-flex align-self-center justify-content-center">
+        <h1> No validators found </h1>
+      </div>
     )
   }
 }

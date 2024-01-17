@@ -1,4 +1,4 @@
-const server = 'https://node-goerli.smoothly.money';//'http://localhost:4040' 
+const server = process.env.SERVER; 
 
 export const getValidators = async (address: string) => {
   try {

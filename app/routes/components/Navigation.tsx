@@ -45,13 +45,13 @@ export const Header = () => {
           <div className="collapse navbar-collapse" id="navbarNav">
             <ul className="navbar-nav align-middle fs-4">
               <li className="link nav-item">
-                <a className="nav-link" href="https://docs.smoothly.money/how-to-guide">Get Started</a>
+                <a className="nav-link" href="https://docs.smoothly.money/how-to-guide" target="_blank">Get Started</a>
               </li>
               <li className="link nav-item">
-                <a className="nav-link" href="https://docs.smoothly.money">Docs</a>
+                <a className="nav-link" href="https://docs.smoothly.money" target="_blank">Docs</a>
               </li>
               <li className="link nav-item">
-                <a className="nav-link" href="#">Donate</a>
+                <a className="nav-link" href="#" target="_blank">Donate</a>
               </li>
             </ul>
           </div>
@@ -83,7 +83,7 @@ export const Footer = () => {
   },[gas]);
 
   return (
-    <footer className="navbar pt-5">
+    <footer className="navbar pt-5 ">
       <div className="container-fluid p-0" id="footer">
 
         <div>
@@ -118,13 +118,13 @@ export const Footer = () => {
         <div>
           <ul className="navbar-nav d-flex flex-row justify-content-end">
             <li className="link fs-4">
-              <a className="nav-link" href="https://discord.com/invite/WvcEAcg9Aj">Discord</a>
+              <a className="nav-link" href="https://discord.com/invite/WvcEAcg9Aj" target="_blank">Discord</a>
             </li>
             <li className="link nav-item fs-4">
-              <a className="nav-link" href="https://github.com/Smoothly-Protocol">Github</a>
+              <a className="nav-link" href="https://github.com/Smoothly-Protocol" target="_blank">Github</a>
             </li>
             <li className="link nav-item fs-4">
-              <a className="nav-link" href="https://warpcast.com/kodys.eth">Farcaster</a>
+              <a className="nav-link" href="https://warpcast.com/kodys.eth" target="_blank">Farcaster</a>
             </li>
           </ul> 
         </div>

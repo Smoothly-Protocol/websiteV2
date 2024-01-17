@@ -17,6 +17,7 @@ import { getSession, commitSession } from "../sessions";
 import { Validators } from './mock/validators'; // Remove - only testing
 import { getValidators, getWithdrawals, getExits, getPool } from './poolData.ts';
 import { terms } from './utils';
+import { useEffect } from 'react';
 
 export const meta: MetaFunction = () => {
   return [
@@ -25,19 +26,6 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-const { chains, publicClient } = configureChains([goerli], [publicProvider()]);
-
-const { connectors } = getDefaultWallets({
-  appName: 'Smoothly Protocol',
-  projectId: 'f9e76686c044fd14d745ea9029c1a27a',
-  chains
-});
-
-const wagmiConfig = createConfig({
-  autoConnect: true,
-  connectors,
-  publicClient
-});
 
 export const loader = async ({
   request,
@@ -55,7 +43,6 @@ export const loader = async ({
     const siwe = session.get('siwe');
     const addr = siwe.data.address;
     let validators, withdrawals, exits;
-
 
     // Update session
     session.has('validators')
@@ -93,6 +80,20 @@ export const loader = async ({
 };
 
 export default function Index() {
+  const { chains, publicClient } = configureChains([goerli], [publicProvider()]);
+
+  const { connectors } = getDefaultWallets({
+    appName: 'Smoothly Protocol',
+    projectId: 'f9e76686c044fd14d745ea9029c1a27a',
+    chains
+  });
+
+  const wagmiConfig = createConfig({
+    autoConnect: true,
+    connectors,
+    publicClient
+  });
+
   const { status } = useLoaderData<typeof loader>();
   const authenticationAdapter = createAuthenticationAdapter({
     getNonce: async () => {
@@ -141,19 +142,11 @@ export default function Index() {
           status={status}
         >
           <RainbowKitProvider chains={chains}>
-          {/* status === "authenticated" ? 
-            <Dashboard/> : <Landing/> 
-          */}<Dashboard/>
+            <Dashboard/>
           </RainbowKitProvider>
         </RainbowKitAuthenticationProvider>
       </WagmiConfig>
       </>
-  );
-}
-
-const Landing = () => {
-  return (
-    <h1> This will be a nice Landing Page </h1>
   );
 }
 

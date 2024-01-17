@@ -84,3 +84,48 @@ const copyBtn = () => {
     </svg>
   );
 }
+
+export const SessionTerms = () => {
+
+return(
+    <div className="modal fade" id="sessionModal" tabIndex="-1" aria-labelledby="sessionModalLabel" aria-hidden="true">
+      <div className="modal-dialog modal-dialog-centered modal-lg">
+        <div className="modal-content">
+
+          <div className="modal-header align-items-start p-5 pb-0">
+            <div id="exampleModalLabel">
+              <div className="d-flex align-items-center"> 
+                <img className="me-2" width="40px" src="img/disclaimer.svg"/>
+                <h1 className="modal-title fs-2">Notice</h1>
+              </div>
+            </div>
+
+            <button type="button" className="btn btn-secondary fs-5 align-top lato" data-bs-dismiss="modal" aria-label="Close">X</button>
+          </div>
+
+          <div className="modal-body p-2">
+            <div className="p-5 pt-0">
+              <h1 className="fs-2 p-4">Finalized Epochs and Session-Based Connection</h1>
+              <ul >
+                <li className="fs-5">Transactions submitted in your current session will be picked up after the epoch is finalized.</li>
+                <li className="fs-5">Epochs finalize ~12 mins after submission.</li>
+                <li className="fs-5">If you log out and back in, you may not immediately see your last transaction.</li>
+                <li className="fs-5">Avoid submitting duplicate transactions to prevent loss of funds.</li>
+                <li className="fs-5">Unsure about a transaction? Wait 15 mins or check on a blockchain explorer.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="modal-footer p-5 pt-0"> 
+              <p className="disclaimer fs-5 mt-2">
+              For more details, please visit our <a href="https://docs.smoothly.money" target="_blank">
+              documentation</a>
+              </p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+);
+}
