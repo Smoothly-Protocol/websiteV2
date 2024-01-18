@@ -146,6 +146,10 @@ tr:hover .grey-btn-hover{
 }
 
 /* Modal */
+.modal-backdrop {
+  opacity:0.5 !important;
+}
+
 .modal-content {
   font-family: Leto !important;
   background: #EAEAEA !important;

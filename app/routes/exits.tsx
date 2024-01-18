@@ -9,13 +9,14 @@ export const action = async ({
   request,
 }: ActionFunctionArgs) => {
   try {
+    let validators = [];
     const { indexes } = await request.json();
     const session = await getSession(
       request.headers.get("Cookie")
     );
 
     if (session.has('validators')) {
-      let validators = session.get('validators');
+      validators = session.get('validators');
 
       // Update validators
       for(let index of indexes) {
@@ -32,10 +33,10 @@ export const action = async ({
     }
 
     const cookie = await commitSession(session);
-
     return json(
       { 
-        ok: true 
+        ok: true, 
+        data: validators
       }, 
       {
         status: 200,

@@ -52,11 +52,11 @@ export const Modal = (props: {selected: number[], Subscribe: any}) => {
               </div>
               <div className="p-2 disclaimer-check">
                 <input className="me-2" type="checkbox" id="disclaimer2" name="disclaimer2"/>
-                <label className="lato fs-5" htmlFor="disclaimer2">I know that running MEV Boost and subscribing to one or more of the approved relays is required</label>
+                <label className="lato fs-5" htmlFor="disclaimer2">I know that running MEV Boost and subscribing to one or more of the <a href="https://docs.smoothly.money/oracle-operators#monitoring-relays" target="_blank">monitored relays</a> is required</label>
               </div>
               <div className="p-2 disclaimer-check">
                 <input className="me-2" type="checkbox" id="disclaimer3" name="disclaimer3"/>
-                <label className="lato fs-5" htmlFor="disclaimer3">I’ve verified the fee recipient is &nbsp; </label>
+                <label className="lato fs-5" htmlFor="disclaimer3">I’ve verified the fee recipient in my validator client is &nbsp; </label>
                 <span onClick={(e: any) => copyText(e)} id="fee-recipient">{NETWORK.poolAddress} {copyBtn()}</span>
               </div>
             </div>
@@ -66,6 +66,7 @@ export const Modal = (props: {selected: number[], Subscribe: any}) => {
             <button 
               type="button" 
               className="btn btn-dark fs-5 m-0 lato"
+              data-bs-dismiss="modal"
               onClick={(e: any) => execute(e)}>
               Deposit {formatEthAmount((Number(NETWORK.stakeFee) * props.selected.length).toString())} ETH and subscribe {props.selected.length} validators</button>
           </div>
@@ -93,7 +94,7 @@ return(
         <div className="modal-content">
 
           <div className="modal-header align-items-start p-5 pb-0">
-            <div id="exampleModalLabel">
+            <div id="sessionModalLabel">
               <div className="d-flex align-items-center"> 
                 <img className="me-2" width="40px" src="img/disclaimer.svg"/>
                 <h1 className="modal-title fs-2">Notice</h1>

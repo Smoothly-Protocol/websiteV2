@@ -26,7 +26,6 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-
 export const loader = async ({
   request,
 }: LoaderFunctionArgs) => {
@@ -39,12 +38,14 @@ export const loader = async ({
   let pool = await getPool();
 
   // Verify auth
+  let signed = session.has('siwe');
   if(session.has('siwe')) {
     const siwe = session.get('siwe');
     const addr = siwe.data.address;
-    let validators, withdrawals, exits;
+    let validators, withdrawals, exits, terms;
 
     // Update session
+    terms = session.has('validators');
     session.has('validators')
       ? 0 
       : session.set('validators', (await getValidators(addr)));
@@ -58,11 +59,14 @@ export const loader = async ({
       : session.set('exits', (await getExits(addr)));
 
 
+
     const cookie = await commitSession(session);
 
     return json({
       status: "authenticated",
-      pool: pool, 
+      pool: pool,
+      terms: terms,
+      signed: signed,
       validators: session.get("validators"),
       withdrawals: session.get("withdrawals"),
       exits: session.get("exits")
@@ -94,7 +98,13 @@ export default function Index() {
     publicClient
   });
 
-  const { status } = useLoaderData<typeof loader>();
+  const { 
+    status, 
+    validators,
+    withdrawals,
+    exits
+  } = useLoaderData<typeof loader>();
+
   const authenticationAdapter = createAuthenticationAdapter({
     getNonce: async () => {
       const response = await fetch('/auth/nonce');
@@ -142,21 +152,18 @@ export default function Index() {
           status={status}
         >
           <RainbowKitProvider chains={chains}>
-            <Dashboard/>
+            <div id="main">
+              <Header/>
+              <App 
+                validators={validators}
+                withdrawals={withdrawals}
+                exits={exits}/>
+              <Footer/>
+            </div>
           </RainbowKitProvider>
         </RainbowKitAuthenticationProvider>
       </WagmiConfig>
       </>
-  );
-}
-
-const Dashboard = () => {
-  return (
-    <div id="main">
-      <Header/>
-      <App/>
-      <Footer/>
-    </div>
   );
 }
 

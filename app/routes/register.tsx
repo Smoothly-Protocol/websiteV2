@@ -9,13 +9,14 @@ export const action = async ({
   request,
 }: ActionFunctionArgs) => {
   try {
+    let validators = [];
     const { indexes } = await request.json();
     const session = await getSession(
       request.headers.get("Cookie")
     );
 
     if (session.has('validators')) {
-      let validators = session.get('validators');
+      validators = session.get('validators');
       const eth1Addr = session.get('siwe').data.address;
 
       // Update validators
@@ -57,7 +58,8 @@ export const action = async ({
 
     return json(
       { 
-        ok: true 
+        ok: true,
+        data: validators
       }, 
       {
         status: 200,

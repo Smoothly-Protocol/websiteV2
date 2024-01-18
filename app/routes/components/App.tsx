@@ -6,25 +6,37 @@ import { useAccount, useWalletClient, usePublicClient } from 'wagmi';
 import { getTimeRemaining, formatEthAmount } from '../utils';
 import { useLoaderData } from "@remix-run/react";
 import { Loader } from "./Loader";
+import { Alert } from "./Alert";
 
 export const SelectContext = createContext();
 
-export const App = () => {
+export const App = (props: {validators: [], withdrawals: {}, exits: {}}) => {
   const { address } = useAccount();
   const { data: walletClient } = useWalletClient();
-  const { validators, pool, withdrawals, exits } = useLoaderData<typeof loader>();
+  const { pool, terms, signed } = useLoaderData<typeof loader>();
+  const [validators, setValidators] = useState(props.validators);
+  const [withdrawals, setWithdrawals] = useState(props.withdrawals);
+  const [exits, setExits] = useState(props.exits);
   const [days, setDays] = useState();
   const [hours, setHours] = useState();
   const [minutes, setMinutes] = useState();
   const [selectedS, setSelectedS] = useState([]);
   const [selectedE, setSelectedE] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [alertPop, setAlertPop] = useState(false);
+  let loader, alertModal;
 
   const load = async () => {
+    if(typeof window == 'undefined') return;
     const d = await getTimeRemaining();
     setDays(d.days);
     setHours(d.hours);
     setMinutes(d.minutes);
+
+    alertModal = new window.bootstrap.Modal("#alertModal");
+    loader = new window.bootstrap.Modal(
+      "#loaderModal", 
+      {keyboard: false, backdrop: 'static' }
+    );
   };
 
   load();
@@ -64,97 +76,154 @@ export const App = () => {
   // Web3 Action calls
   const Subscribe = async () => {
     try {
-      /*
       const contract = useContract(walletClient);
+      loading(true);
       const tx = await contract.registerBulk(
         selectedS, 
         { value: NETWORK.stakeFee * BigInt(selectedS.length) }
       );
-      await tx.wait();
-      */
-      const verifyRes = await fetch('/register', {
+
+      //await tx.wait();
+
+      const req = await fetch('/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ indexes: selectedS }),
       });
-      window.location.href = '/';
+      const res = await req.json();
+
+      if(res.ok) {
+        setValidators(res.data);
+      }
+
+      loading(false);
+      setSelectedS([]);
+      popAlert("Successfully Subscribed Validators");
     } catch(err: any) {
-      console.log(err);
+      loading(false);
+      if(!err.message.includes('User rejected the request')) {
+        popAlert("Error: transaction reverted");
+      }
+      console.log(err)
     }
   }
 
   const Claim = async () => {
     try {
-      setLoading(true);
-      /*
       const contract = useContract(walletClient);
+      loading(true);
       const tx = await contract.withdrawRewards(
         withdrawals.proof[0], 
         withdrawals.proof[1], 
         withdrawals.proof[2].hex
       );
-      await tx.wait();
+
+      //await tx.wait();
+      
       await fetch('/claim', { method: 'POST' });
-      window.location.href = '/';
-      */
-      setTimeout(() => {console.log('waiting')},5000);
-      setLoading(false);
+      setWithdrawals({ proof: [] });
+
+      loading(false);
+      popAlert("Successfully Claimed Rewards");
     } catch(err: any) {
-      console.log(err);
-    } finally {
-      setLoading(false);
+      loading(false);
+      if(!err.message.includes('User rejected the request')) {
+        popAlert("Error: transaction reverted");
+      }
+      console.log(err)
     }
   }
 
   const RequestExit = async () => {
     try {
-      /*
       const contract = useContract(walletClient);
+      loading(true);
       const tx = await contract.requestExit(selectedE);
-      await tx.wait();
-      */
-      const verifyRes = await fetch('/exits', {
+
+      //await tx.wait();
+
+      const req = await fetch('/exits', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ indexes: selectedE }),
       });
-      window.location.href = '/';
+      const res = await req.json();
+
+      if(res.ok) {
+        setValidators(res.data);
+      }
+
+      loading(false);
+      setSelectedE([]);
+      popAlert("Successfully Requested Exit");
     } catch(err: any) {
-      console.log(err);
+      loading(false);
+      if(!err.message.includes('User rejected the request')) {
+        popAlert("Error: transaction reverted");
+      }
+      console.log(err)
     }
   }
 
   const WithdrawBond = async () => {
     try {
-      /*
       const contract = useContract(walletClient);
+      loading(true);
       const tx = await contract.withdrawStake(
         exits.proof[0], 
         exits.proof[1], 
         exits.proof[2].hex
       );
-      await tx.wait();
-      */
-      await fetch('/withdrawBond', { method: 'POST' });
-      window.location.href = '/';
+
+      //await tx.wait();
+      
+      const req = await fetch('/withdrawBond', { method: 'POST' });
+      const res = await req.json();
+      if(res.ok) {
+        setValidators(res.data);
+        setWithdrawals({ proof: [] });
+      }
+
+      loading(false);
+      popAlert("Successfully Witdhraw Bonds");
     } catch(err: any) {
-      console.log(err);
+      loading(false);
+      if(!err.message.includes('User rejected the request')) {
+        popAlert("Error: transaction reverted");
+      }
+      console.log(err)
     }
   }
 
-  const renderLoader = () => {
-    const modal = new window.bootstrap.Modal("#loaderModal", {keyboard: false, backdrop: 'static' });
-    if(loading) {
-      modal.show();
+  const popAlert = (text) => {
+    const h1 = document.querySelector('#alert-text');
+    h1.innerText = text;
+    if(!alertModal._ishown) {
+      alertModal.toggle();  
+    }
+  }
+
+  const loading = (l) => {
+    if(l) {
+      loader.show();
     } else {
-      modal.hide();
+      loader.hide();
     }
   }
 
   useEffect(() => {
-    console.log("loading...");
-    renderLoader();
-  }, [loading]);
+    const loadSessionTerms = () => {
+      let sessionTerms = new window.bootstrap.Modal(
+        "#sessionModal", 
+        {keyboard: false}
+      );
+      if(days && signed) { // Use days to not re-render modal
+        terms ? sessionTerms.hide() : sessionTerms.toggle();
+      }
+    }
+
+    loadSessionTerms()
+  }, [days]);
 
   return(
     <div className="container-fluid d-flex flex-column pt-5 pb-3">
@@ -162,6 +231,7 @@ export const App = () => {
       {/* Modals */}
       <Modal selected={selectedS} Subscribe={Subscribe}/> 
       <Loader />
+      <Alert />
       <SessionTerms />
 
       <div id="mobile-banner">
