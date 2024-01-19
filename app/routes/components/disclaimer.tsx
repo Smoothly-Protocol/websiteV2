@@ -1,4 +1,5 @@
 import { NETWORK, formatEthAmount } from "../utils";
+import React, { useEffect } from 'react';
 
 const copyText = async (e: any) => {
   try {
@@ -86,9 +87,19 @@ const copyBtn = () => {
   );
 }
 
-export const SessionTerms = () => {
+export const SessionTerms = (props: {show: boolean}) => {
 
-return(
+  useEffect(() => {
+    let modal = document.querySelector('#sessionModal');
+    let session = window.bootstrap.Modal.getOrCreateInstance(modal);
+    
+    if(props.show) {
+      session.show();
+    }
+
+  }, [props.show]);
+
+  return(
     <div className="modal fade" id="sessionModal" tabIndex="-1" aria-labelledby="sessionModalLabel" aria-hidden="true">
       <div className="modal-dialog modal-dialog-centered modal-lg">
         <div className="modal-content">
@@ -127,6 +138,50 @@ return(
         </div>
       </div>
     </div>
+  );
+}
 
-);
+export const RequestModal = (props: { RequestExit: any }) => {
+  return(
+    <div className="modal fade" id="requestModal" tabIndex="-1" aria-labelledby="requestModalLabel" aria-hidden="true">
+      <div className="modal-dialog modal-dialog-centered modal-lg">
+        <div className="modal-content">
+
+          <div className="modal-header align-items-start p-5 pb-0">
+            <div id="requestModalLabel">
+              <div className="d-flex align-items-center"> 
+                <img className="me-2" width="40px" src="img/disclaimer.svg"/>
+                <h1 className="modal-title fs-2">Notice</h1>
+              </div>
+            </div>
+
+            <button type="button" className="btn btn-secondary fs-5 align-top lato" data-bs-dismiss="modal" aria-label="Close">X</button>
+          </div>
+
+          <div className="modal-body p-2">
+            <div className="p-5">
+              <ul >
+                <li className="fs-5">Requesting an exit for a Pending validator will result in its accrued rewards being added to the pool!</li>
+                <li className="fs-5">If your validator is Active, your accrued rewards will remain claimable</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="modal-footer p-5 pt-0 d-flex justify-content-between"> 
+              <p className="disclaimer fs-5 mt-2">
+              For more details, please visit our <a href="https://docs.smoothly.money" target="_blank">
+              documentation</a>
+              </p>
+            <button 
+              type="button" 
+              className="btn btn-dark fs-5 m-0 lato"
+              data-bs-dismiss="modal"
+              onClick={() => props.RequestExit()}>
+              Request Exit</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  );
 }

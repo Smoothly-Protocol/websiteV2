@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { Table } from "./Table";
-import { Modal, SessionTerms } from "./disclaimer";
+import { Modal, SessionTerms, RequestModal } from "./disclaimer";
 import { NETWORK, useContract } from "../utils";
 import { useAccount, useWalletClient, usePublicClient } from 'wagmi';
 import { getTimeRemaining, formatEthAmount } from '../utils';
@@ -11,9 +11,10 @@ import { Alert } from "./Alert";
 export const SelectContext = createContext();
 
 export const App = (props: {validators: [], withdrawals: {}, exits: {}}) => {
-  const { address } = useAccount();
+  const client = usePublicClient();
+  const { address, status } = useAccount();
   const { data: walletClient } = useWalletClient();
-  const { pool, terms, signed } = useLoaderData<typeof loader>();
+  const { terms, signed } = useLoaderData<typeof loader>();
   const [validators, setValidators] = useState(props.validators);
   const [withdrawals, setWithdrawals] = useState(props.withdrawals);
   const [exits, setExits] = useState(props.exits);
@@ -22,21 +23,14 @@ export const App = (props: {validators: [], withdrawals: {}, exits: {}}) => {
   const [minutes, setMinutes] = useState();
   const [selectedS, setSelectedS] = useState([]);
   const [selectedE, setSelectedE] = useState([]);
-  const [alertPop, setAlertPop] = useState(false);
-  let loader, alertModal;
+  const [alert, setAlert] = useState();
+  const [hash, setHash] = useState();
 
   const load = async () => {
-    if(typeof window == 'undefined') return;
     const d = await getTimeRemaining();
     setDays(d.days);
     setHours(d.hours);
     setMinutes(d.minutes);
-
-    alertModal = new window.bootstrap.Modal("#alertModal");
-    loader = new window.bootstrap.Modal(
-      "#loaderModal", 
-      {keyboard: false, backdrop: 'static' }
-    );
   };
 
   load();
@@ -76,33 +70,38 @@ export const App = (props: {validators: [], withdrawals: {}, exits: {}}) => {
   // Web3 Action calls
   const Subscribe = async () => {
     try {
-      const contract = useContract(walletClient);
-      loading(true);
-      const tx = await contract.registerBulk(
-        selectedS, 
-        { value: NETWORK.stakeFee * BigInt(selectedS.length) }
-      );
+      // Write 
+      const [address] = await walletClient.getAddresses();
+      setHash(true);
+      const hash = await walletClient.writeContract({
+        address: NETWORK.poolAddress,
+        abi: NETWORK.poolAbi,
+        functionName: 'registerBulk',
+        account: address, 
+        args: [selectedS],
+        value: NETWORK.stakeFee * BigInt(selectedS.length),
+      });
 
-      //await tx.wait();
-
+      // Wait
+      const reciept = await client.waitForTransactionReceipt({ hash });
       const req = await fetch('/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ indexes: selectedS }),
       });
       const res = await req.json();
-
       if(res.ok) {
         setValidators(res.data);
       }
 
-      loading(false);
+      // Reset
+      setHash(false);
       setSelectedS([]);
-      popAlert("Successfully Subscribed Validators");
+      setAlert("Successfully Subscribed Validators");
     } catch(err: any) {
-      loading(false);
+      setHash(false);
       if(!err.message.includes('User rejected the request')) {
-        popAlert("Error: transaction reverted");
+        setAlert("Error: transaction reverted");
       }
       console.log(err)
     }
@@ -110,25 +109,33 @@ export const App = (props: {validators: [], withdrawals: {}, exits: {}}) => {
 
   const Claim = async () => {
     try {
-      const contract = useContract(walletClient);
-      loading(true);
-      const tx = await contract.withdrawRewards(
-        withdrawals.proof[0], 
-        withdrawals.proof[1], 
-        withdrawals.proof[2].hex
-      );
+      // Write 
+      const [address] = await walletClient.getAddresses();
+      setHash(true);
+      const hash = await walletClient.writeContract({
+        address: NETWORK.poolAddress,
+        abi: NETWORK.poolAbi,
+        functionName: 'withdrawRewards',
+        account: address, 
+        args: [
+          withdrawals.proof[0], 
+          withdrawals.proof[1], 
+          withdrawals.proof[2].hex
+        ]
+      });
 
-      //await tx.wait();
-      
+      // Wait
+      const reciept = await client.waitForTransactionReceipt({ hash });
       await fetch('/claim', { method: 'POST' });
       setWithdrawals({ proof: [] });
 
-      loading(false);
-      popAlert("Successfully Claimed Rewards");
+      // Reset
+      setHash(false);
+      setAlert("Successfully Claimed Rewards");
     } catch(err: any) {
-      loading(false);
+      setHash(false);
       if(!err.message.includes('User rejected the request')) {
-        popAlert("Error: transaction reverted");
+        setAlert("Error: transaction reverted");
       }
       console.log(err)
     }
@@ -136,12 +143,19 @@ export const App = (props: {validators: [], withdrawals: {}, exits: {}}) => {
 
   const RequestExit = async () => {
     try {
-      const contract = useContract(walletClient);
-      loading(true);
-      const tx = await contract.requestExit(selectedE);
+      // Write 
+      const [address] = await walletClient.getAddresses();
+      setHash(true);
+      const hash = await walletClient.writeContract({
+        address: NETWORK.poolAddress,
+        abi: NETWORK.poolAbi,
+        functionName: 'requestExit',
+        account: address, 
+        args: [selectedE]
+      });
 
-      //await tx.wait();
-
+      // Wait
+      const reciept = await client.waitForTransactionReceipt({ hash });
       const req = await fetch('/exits', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -153,13 +167,14 @@ export const App = (props: {validators: [], withdrawals: {}, exits: {}}) => {
         setValidators(res.data);
       }
 
-      loading(false);
+      // Reset
+      setHash(false);
       setSelectedE([]);
-      popAlert("Successfully Requested Exit");
+      setAlert("Successfully Requested Exit");
     } catch(err: any) {
-      loading(false);
+      setHash(false);
       if(!err.message.includes('User rejected the request')) {
-        popAlert("Error: transaction reverted");
+        setAlert("Error: transaction reverted");
       }
       console.log(err)
     }
@@ -167,16 +182,23 @@ export const App = (props: {validators: [], withdrawals: {}, exits: {}}) => {
 
   const WithdrawBond = async () => {
     try {
-      const contract = useContract(walletClient);
-      loading(true);
-      const tx = await contract.withdrawStake(
-        exits.proof[0], 
-        exits.proof[1], 
-        exits.proof[2].hex
-      );
+      // Write 
+      const [address] = await walletClient.getAddresses();
+      setHash(true);
+      const hash = await walletClient.writeContract({
+        address: NETWORK.poolAddress,
+        abi: NETWORK.poolAbi,
+        functionName: 'withdrawStake',
+        account: address, 
+        args: [
+          exits.proof[0], 
+          exits.proof[1], 
+          exits.proof[2].hex
+        ]
+      });
 
-      //await tx.wait();
-      
+      // Wait
+      const reciept = await client.waitForTransactionReceipt({ hash });
       const req = await fetch('/withdrawBond', { method: 'POST' });
       const res = await req.json();
       if(res.ok) {
@@ -184,55 +206,69 @@ export const App = (props: {validators: [], withdrawals: {}, exits: {}}) => {
         setWithdrawals({ proof: [] });
       }
 
-      loading(false);
-      popAlert("Successfully Witdhraw Bonds");
+      // Reset
+      setHash(false);
+      setAlert("Successfully Witdhraw Bonds");
     } catch(err: any) {
-      loading(false);
+      setHash(false);
       if(!err.message.includes('User rejected the request')) {
-        popAlert("Error: transaction reverted");
+        setAlert("Error: transaction reverted");
       }
       console.log(err)
     }
   }
 
-  const popAlert = (text) => {
-    const h1 = document.querySelector('#alert-text');
-    h1.innerText = text;
-    if(!alertModal._ishown) {
-      alertModal.toggle();  
-    }
-  }
+  const AddBond = async (index) => {
+    try {
+      // Write 
+      const [address] = await walletClient.getAddresses();
+      setHash(true);
+      const hash = await walletClient.writeContract({
+        address: NETWORK.poolAddress,
+        abi: NETWORK.poolAbi,
+        functionName: 'addStake',
+        account: address, 
+        args: [index],
+        value: NETWORK.missFee,
+      });
 
-  const loading = (l) => {
-    if(l) {
-      loader.show();
-    } else {
-      loader.hide();
+      // Wait
+      const reciept = await client.waitForTransactionReceipt({ hash });
+      const verifyRes = await fetch('/addbond', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ index: index }),
+      });
+
+      // Reset
+      setHash(false);
+      setAlert("Successfully Added Bond");
+    } catch(err: any) {
+      setHash(false);
+      if(!err.message.includes('User rejected the request')) {
+        setAlert("Error: transaction reverted");
+      }
+      console.log(err)
     }
   }
 
   useEffect(() => {
-    const loadSessionTerms = () => {
-      let sessionTerms = new window.bootstrap.Modal(
-        "#sessionModal", 
-        {keyboard: false}
-      );
-      if(days && signed) { // Use days to not re-render modal
-        terms ? sessionTerms.hide() : sessionTerms.toggle();
-      }
+    if(status == 'disconnected') {
+      setValidators([]); 
+    } else if(status == 'connected') {
+      setValidators(props.validators); 
     }
-
-    loadSessionTerms()
-  }, [days]);
+  }, [status]);
 
   return(
     <div className="container-fluid d-flex flex-column pt-5 pb-3">
 
       {/* Modals */}
       <Modal selected={selectedS} Subscribe={Subscribe}/> 
-      <Loader />
-      <Alert />
-      <SessionTerms />
+      <Loader hash={hash}/>
+      <Alert text={alert} setText={setAlert}/>
+      <SessionTerms show={!terms && signed} />
+      <RequestModal RequestExit={RequestExit} />
 
       <div id="mobile-banner">
         <div className="d-flex justify-content-between">
@@ -269,7 +305,7 @@ export const App = (props: {validators: [], withdrawals: {}, exits: {}}) => {
               <button 
                 type="button" 
                 className="btn btn-dark fs-3 ms-4"
-                onClick={() => RequestExit()}>
+                data-bs-toggle="modal" data-bs-target="#requestModal">
                 Request Exit for {selectedE.length} validators</button>
               </>
               }
@@ -295,6 +331,7 @@ export const App = (props: {validators: [], withdrawals: {}, exits: {}}) => {
             validators={validators ? validators : []} 
             WithdrawBond={WithdrawBond}
             exits={exits}
+            AddBond={AddBond}
           />
         </SelectContext.Provider>
       </div>

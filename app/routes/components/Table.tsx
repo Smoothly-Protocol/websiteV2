@@ -12,7 +12,12 @@ import { useWalletClient } from 'wagmi';
 import React, { useState, useContext, useEffect } from 'react';
 import { SelectContext } from './App';
 
-export const Table = (props: {validators: any, WithdrawBond: any, exits: any}) => {
+export const Table = (props: {
+  validators: any, 
+  WithdrawBond: any, 
+  exits: any,
+  AddBond: any
+  }) => {
   const Validators = props.validators;
   const { 
     selectedS, selectedE, 
@@ -71,8 +76,11 @@ export const Table = (props: {validators: any, WithdrawBond: any, exits: any}) =
               </div>
             </td>
             <td>
-              <Action2 validator={validator} WithdrawBond={props.WithdrawBond}
-                exits={props.exits}/>
+              <Action2 
+                validator={validator} 
+                WithdrawBond={props.WithdrawBond}
+                exits={props.exits}
+                AddBond={props.AddBond}/>
             </td>
             <td> 
               <Action3 validator={validator} />
@@ -110,7 +118,12 @@ export const Table = (props: {validators: any, WithdrawBond: any, exits: any}) =
   }
 }
 
-const Action2 = (props: {validator: any, WithdrawBond: any, exits: any}) => {
+const Action2 = (props: {
+  validator: any, 
+  WithdrawBond: any, 
+  exits: any,
+  AddBond: any
+  }) => {
   const penalized = state(props.validator);
   const st = status(props.validator);
   const index = props.validator.index;
@@ -123,24 +136,6 @@ const Action2 = (props: {validator: any, WithdrawBond: any, exits: any}) => {
   let fixedStake = props.validator.stake 
     ? FixedNumber.fromValue(props.validator.stake.hex) 
     : null; 
-
-  const AddBond = async () => {
-    try {
-      /*
-      const contract = useContract(walletClient);
-      const tx = await contract.addStake(index, {value: NETWORK.missFee});
-      await tx.wait();
-      */
-      const verifyRes = await fetch('/addbond', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ index: index }),
-      });
-      window.location.href = '/';
-    } catch(err: any) {
-      console.log(err);
-    }
-  }
 
   if(props.exits.proof.length > 0 && props.exits.proof[1].includes(props.validator.index)) {
     return(
@@ -164,7 +159,7 @@ const Action2 = (props: {validator: any, WithdrawBond: any, exits: any}) => {
           className="t-container-2 purple-btn-hover"
           onMouseEnter={(e: any) => {changeTextOver(e, "purple", `Add ${needs} bond >`)}}
           onMouseLeave={(e: any) => {changeTextOut(e, "purple", stake)}}
-          onClick={() => AddBond()}
+          onClick={() => props.AddBond(index)}
         >
           <span className="ft-number">
            {stake}

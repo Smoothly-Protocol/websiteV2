@@ -1,5 +1,21 @@
+import React, { useEffect } from 'react';
 
-export const Alert = () => {
+export const Alert = (props:{ text: string, setText: any }) => {
+
+  useEffect(() => {
+    let modal = document.querySelector('#alertModal');
+    let alert = window.bootstrap.Modal.getOrCreateInstance(modal);
+
+    modal.addEventListener('hidden.bs.modal', function (event) {
+      props.setText();
+    })
+
+    if(props.text) {
+      setTimeout(() => {
+        alert.show();
+      }, 500);
+    }   
+  }, [props.text]);
 
   return(
       <div className="modal fade" id="alertModal" tabIndex="-1" aria-labelledby="alertModalLabel" aria-hidden="true">
@@ -19,7 +35,7 @@ export const Alert = () => {
 
             <div className="modal-body p-2">
               <div className="p-5 pt-0 d-flex justify-content-center">
-                <h1 id="alert-text" className="fs-3 p-4"></h1>
+                <h1 id="alert-text" className="fs-3 p-4">{props.text}</h1>
               </div>
             </div>
 

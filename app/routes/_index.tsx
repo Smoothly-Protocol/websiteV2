@@ -102,7 +102,9 @@ export default function Index() {
     status, 
     validators,
     withdrawals,
-    exits
+    exits,
+    pool,
+    signed
   } = useLoaderData<typeof loader>();
 
   const authenticationAdapter = createAuthenticationAdapter({
@@ -140,7 +142,6 @@ export default function Index() {
 
     signOut: async () => {
       await fetch('/auth/logout', { method: "POST" }); 
-      window.location.href = '/';
     },
   });
 
@@ -158,7 +159,7 @@ export default function Index() {
                 validators={validators}
                 withdrawals={withdrawals}
                 exits={exits}/>
-              <Footer/>
+              <Footer pool={pool}/>
             </div>
           </RainbowKitProvider>
         </RainbowKitAuthenticationProvider>

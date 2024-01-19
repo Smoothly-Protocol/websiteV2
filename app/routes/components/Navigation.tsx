@@ -68,8 +68,7 @@ export const Header = () => {
   );
 }
 
-export const Footer = () => {
-  const { pool } = useLoaderData<typeof loader>();
+export const Footer = (props: {pool: Object}) => {
   const [gas, setGas] = useState(38.51);
   const provider = usePublicClient();
 
@@ -94,7 +93,7 @@ export const Footer = () => {
                 alt="Subscriber" 
                 className="icon"
                 />
-               <span>{pool.awaiting_activation + pool.activated} subscribers</span>
+               <span>{props.pool.awaiting_activation + props.pool.activated} subscribers</span>
             </li>
             <li className="link d-flex align-items-center fs-4">
               <img 
