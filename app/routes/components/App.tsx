@@ -1,20 +1,22 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { Table } from "./Table";
 import { Modal, SessionTerms, RequestModal } from "./disclaimer";
-import { NETWORK, useContract } from "../utils";
+import { NETWORK } from "../utils";
 import { useAccount, useWalletClient, usePublicClient } from 'wagmi';
-import { getTimeRemaining, formatEthAmount } from '../utils';
+import { BaseError, ContractFunctionRevertedError } from 'viem';
+import { getTimeRemaining, formatEthAmount, claimed } from '../utils';
 import { useLoaderData } from "@remix-run/react";
 import { Loader } from "./Loader";
 import { Alert } from "./Alert";
+import { EventWatch } from "./EventWatch";
 
 export const SelectContext = createContext();
 
-export const App = (props: {validators: [], withdrawals: {}, exits: {}}) => {
+export const App = (props: {validators, withdrawals, exits, signed, terms}) => {
   const client = usePublicClient();
   const { address, status } = useAccount();
   const { data: walletClient } = useWalletClient();
-  const { terms, signed } = useLoaderData<typeof loader>();
+  const [eventWatcherLoaded, setEventWatcherLoaded] = useState(false);
   const [validators, setValidators] = useState(props.validators);
   const [withdrawals, setWithdrawals] = useState(props.withdrawals);
   const [exits, setExits] = useState(props.exits);
@@ -26,14 +28,54 @@ export const App = (props: {validators: [], withdrawals: {}, exits: {}}) => {
   const [alert, setAlert] = useState();
   const [hash, setHash] = useState();
 
-  const load = async () => {
-    const d = await getTimeRemaining();
-    setDays(d.days);
-    setHours(d.hours);
-    setMinutes(d.minutes);
-  };
+  useEffect(() => {
+    const load = async () => {
+      const d = await getTimeRemaining(client);
+      setDays(d.days);
+      setHours(d.hours);
+      setMinutes(d.minutes);
 
-  load();
+      if(withdrawals.proof.length > 0) {
+        const rewards = await claimed(client, {
+          functionName: 'withdrawRewards',
+          args: [
+            props.withdrawals.proof[0], 
+            props.withdrawals.proof[1], 
+            props.withdrawals.proof[2].hex
+          ],
+          account: address
+        })
+
+        rewards 
+          ? setWithdrawals({ proof: [] }) 
+          : setWithdrawals(props.withdrawals);
+      }
+
+      if(exits.proof.length > 0) {
+        const stake = await claimed(client, {
+          functionName: 'withdrawStake',
+          args: [
+            exits.proof[0], 
+            exits.proof[1], 
+            exits.proof[2].hex
+          ],
+          account: address
+        })
+        
+        stake 
+          ? setExits({ proof: [] }) 
+          : setExits(props.exits);
+      }
+
+      // Update Validator state from logs
+      /* TODO: Need to rethink this
+      if(days && !eventWatcherLoaded) {
+        EventWatch(client, {validators, setValidators});
+        setEventWatcherLoaded(true);
+      }*/
+    }
+    load();
+  }, [days]);
 
   const time = () => {
     if(days > 0) {
@@ -43,7 +85,7 @@ export const App = (props: {validators: [], withdrawals: {}, exits: {}}) => {
     } else if (minutes > 0) {
      return `${minutes} minutes`; 
     }
-    return '';
+    return '0 days';
   }
 
   const Rewards = () => {
@@ -69,11 +111,14 @@ export const App = (props: {validators: [], withdrawals: {}, exits: {}}) => {
 
   // Web3 Action calls
   const Subscribe = async () => {
+    let alertMessage = "Successfully Subscribed Validators"
+    let userRejected = false;
+    let reverted = false;
+    setHash(true);
     try {
       // Write 
       const [address] = await walletClient.getAddresses();
-      setHash(true);
-      const hash = await walletClient.writeContract({
+      const { request } = await client.simulateContract({
         address: NETWORK.poolAddress,
         abi: NETWORK.poolAbi,
         functionName: 'registerBulk',
@@ -83,36 +128,53 @@ export const App = (props: {validators: [], withdrawals: {}, exits: {}}) => {
       });
 
       // Wait
+      const hash = await walletClient.writeContract(request);
       const reciept = await client.waitForTransactionReceipt({ hash });
-      const req = await fetch('/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ indexes: selectedS }),
-      });
-      const res = await req.json();
-      if(res.ok) {
-        setValidators(res.data);
-      }
-
-      // Reset
-      setHash(false);
-      setSelectedS([]);
-      setAlert("Successfully Subscribed Validators");
     } catch(err: any) {
-      setHash(false);
-      if(!err.message.includes('User rejected the request')) {
-        setAlert("Error: transaction reverted");
+      if(err.message.includes('User rejected the request')) {
+        userRejected = true;
       }
-      console.log(err)
+      if (err instanceof BaseError) {
+        const revertError = err.walk(err => err instanceof ContractFunctionRevertedError)
+        if (revertError instanceof ContractFunctionRevertedError) {
+          const errorName = revertError.data?.errorName ?? ''
+          if(errorName == 'NotEnoughEth') {
+            alertMessage = 'Error: Not Enough Eth send';
+          } else {
+            alertMessage = `Error: ${errorName}`
+          }
+          reverted = true;
+        }
+      } 
+    } finally {
+      setHash(false);
+      if(!userRejected) {
+        setSelectedS([]);
+        setAlert(alertMessage); 
+        if(!reverted) {
+          const req = await fetch('/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ indexes: selectedS }),
+          });
+          const res = await req.json();
+          if(res.ok) {
+            setValidators(res.data);
+          }
+        }
+      }
     }
   }
 
   const Claim = async () => {
+    if(withdrawals.proof.length == 0) { return 0; }
+    let alertMessage = "Successfully Claimed Rewards"
+    let userRejected = false;
+    let reverted = false;
+    setHash(true);
     try {
-      // Write 
       const [address] = await walletClient.getAddresses();
-      setHash(true);
-      const hash = await walletClient.writeContract({
+      const { request } = await client.simulateContract({
         address: NETWORK.poolAddress,
         abi: NETWORK.poolAbi,
         functionName: 'withdrawRewards',
@@ -124,29 +186,49 @@ export const App = (props: {validators: [], withdrawals: {}, exits: {}}) => {
         ]
       });
 
-      // Wait
+      // Write 
+      const hash = await walletClient.writeContract(request);
       const reciept = await client.waitForTransactionReceipt({ hash });
-      await fetch('/claim', { method: 'POST' });
-      setWithdrawals({ proof: [] });
-
-      // Reset
-      setHash(false);
-      setAlert("Successfully Claimed Rewards");
     } catch(err: any) {
-      setHash(false);
-      if(!err.message.includes('User rejected the request')) {
-        setAlert("Error: transaction reverted");
+      if(err.message.includes('User rejected the request')) {
+        userRejected = true;
       }
-      console.log(err)
+      if (err instanceof BaseError) {
+        const revertError = err.walk(err => err instanceof ContractFunctionRevertedError)
+        if (revertError instanceof ContractFunctionRevertedError) {
+          const errorName = revertError.data?.errorName ?? ''
+          if(errorName == 'AlreadyClaimed') {
+            alertMessage = 'Error: Rewards already claimed';
+          } else if(errorName == 'InvalidProof') {
+            alertMessage = 'Error: Invalid Proof';
+          } else {
+            alertMessage = `Error: ${errorName}`
+          }
+          reverted = true;
+        }
+      }    
+    } finally {
+      // Update state
+      setHash(false);
+      if(!userRejected) {
+        setAlert(alertMessage); 
+        if(!reverted) {
+          await fetch('/claim', { method: 'POST' });
+          setWithdrawals({ proof: [] });
+        }
+      }
     }
   }
 
   const RequestExit = async () => {
+    let alertMessage = 'Successfully Requested Exit';
+    let userRejected = false;
+    let reverted = false;
+    setHash(true);
     try {
       // Write 
       const [address] = await walletClient.getAddresses();
-      setHash(true);
-      const hash = await walletClient.writeContract({
+      const { request } = await client.simulateContract({
         address: NETWORK.poolAddress,
         abi: NETWORK.poolAbi,
         functionName: 'requestExit',
@@ -154,38 +236,53 @@ export const App = (props: {validators: [], withdrawals: {}, exits: {}}) => {
         args: [selectedE]
       });
 
-      // Wait
+      // Write 
+      const hash = await walletClient.writeContract(request);
       const reciept = await client.waitForTransactionReceipt({ hash });
-      const req = await fetch('/exits', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ indexes: selectedE }),
-      });
-      const res = await req.json();
-
-      if(res.ok) {
-        setValidators(res.data);
+    } catch(err: any) {
+      if(err.message.includes('User rejected the request')) {
+        userRejected = true;
       }
-
+      if (err instanceof BaseError) {
+        const revertError = err.walk(err => err instanceof ContractFunctionRevertedError)
+        if (revertError instanceof ContractFunctionRevertedError) {
+          const errorName = revertError.data?.errorName ?? ''
+          alertMessage = `Error: ${errorName}`
+          reverted = true;
+        }
+      } 
+    } finally {
       // Reset
       setHash(false);
-      setSelectedE([]);
-      setAlert("Successfully Requested Exit");
-    } catch(err: any) {
-      setHash(false);
-      if(!err.message.includes('User rejected the request')) {
-        setAlert("Error: transaction reverted");
+      if(!userRejected) {
+        setSelectedE([]);
+        setAlert(alertMessage);
+        if(!reverted) {
+          const req = await fetch('/exits', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ indexes: selectedE }),
+          });
+          const res = await req.json();
+
+          if(res.ok) {
+            setValidators(res.data);
+          }
+        }
       }
-      console.log(err)
     }
   }
 
   const WithdrawBond = async () => {
+    if(exits.proof.length == 0) { return 0; }
+    let alertMessage = 'Successfully Withdrawn Bond';
+    let userRejected = false;
+    let reverted = false;
+    setHash(true);
     try {
       // Write 
       const [address] = await walletClient.getAddresses();
-      setHash(true);
-      const hash = await walletClient.writeContract({
+      const { request } = await client.simulateContract({
         address: NETWORK.poolAddress,
         abi: NETWORK.poolAbi,
         functionName: 'withdrawStake',
@@ -198,32 +295,52 @@ export const App = (props: {validators: [], withdrawals: {}, exits: {}}) => {
       });
 
       // Wait
+      const hash = await walletClient.writeContract(request);
       const reciept = await client.waitForTransactionReceipt({ hash });
-      const req = await fetch('/withdrawBond', { method: 'POST' });
-      const res = await req.json();
-      if(res.ok) {
-        setValidators(res.data);
-        setWithdrawals({ proof: [] });
+    } catch(err: any) {
+      if(err.message.includes('User rejected the request')) {
+        userRejected = true;
       }
 
-      // Reset
+      if (err instanceof BaseError) {
+        const revertError = err.walk(err => err instanceof ContractFunctionRevertedError)
+        if (revertError instanceof ContractFunctionRevertedError) {
+          const errorName = revertError.data?.errorName ?? ''
+          if(errorName == 'AlreadyClaimed') {
+            alertMessage = 'Error: Bond already claimed';
+          } else if(errorName == 'InvalidProof') {
+            alertMessage = 'Error: Invalid Proof';
+          } else {
+            alertMessage = `Error: ${errorName}`
+          }
+          reverted = true;
+        }
+      }     
+    } finally {
       setHash(false);
-      setAlert("Successfully Witdhraw Bonds");
-    } catch(err: any) {
-      setHash(false);
-      if(!err.message.includes('User rejected the request')) {
-        setAlert("Error: transaction reverted");
+      if(!userRejected) {
+        setAlert(alertMessage);
+        if(!reverted) {
+          const req = await fetch('/withdrawBond', { method: 'POST' });
+          const res = await req.json();
+          if(res.ok) {
+            setValidators(res.data);
+            setWithdrawals({ proof: [] });
+          }
+        }
       }
-      console.log(err)
     }
   }
 
   const AddBond = async (index) => {
+    let alertMessage = 'Successfully Added Bond';
+    let userRejected = false;
+    let reverted = true;
+    setHash(true);
     try {
       // Write 
       const [address] = await walletClient.getAddresses();
-      setHash(true);
-      const hash = await walletClient.writeContract({
+      const { request } = await client.simulateContract({
         address: NETWORK.poolAddress,
         abi: NETWORK.poolAbi,
         functionName: 'addStake',
@@ -233,22 +350,38 @@ export const App = (props: {validators: [], withdrawals: {}, exits: {}}) => {
       });
 
       // Wait
+      const hash = await walletClient.writeContract(request);
       const reciept = await client.waitForTransactionReceipt({ hash });
-      const verifyRes = await fetch('/addbond', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ index: index }),
-      });
-
-      // Reset
-      setHash(false);
-      setAlert("Successfully Added Bond");
     } catch(err: any) {
-      setHash(false);
-      if(!err.message.includes('User rejected the request')) {
-        setAlert("Error: transaction reverted");
+      if(err.message.includes('User rejected the request')) {
+        userRejected = true;
       }
-      console.log(err)
+      if (err instanceof BaseError) {
+        const revertError = err.walk(err => err instanceof ContractFunctionRevertedError)
+        if (revertError instanceof ContractFunctionRevertedError) {
+          const errorName = revertError.data?.errorName ?? ''
+          if(errorName == 'ZeroAmount') {
+            alertMessage = "Error: Eth amount can't be 0";
+          } else if(errorName == 'AmountTooBig') {
+            alertMessage = 'Error: Amount to add is too big';
+          } else {
+            alertMessage = `Error: ${errorName}`
+          }
+          reverted = true;
+        }
+      }
+    } finally {
+      setHash(false);
+      if(!userRejected) {
+        setAlert(alertMessage);
+        if(!reverted) {
+          const verifyRes = await fetch('/addbond', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ index: index }),
+          });
+        }
+      }
     }
   }
 
@@ -267,7 +400,7 @@ export const App = (props: {validators: [], withdrawals: {}, exits: {}}) => {
       <Modal selected={selectedS} Subscribe={Subscribe}/> 
       <Loader hash={hash}/>
       <Alert text={alert} setText={setAlert}/>
-      <SessionTerms show={!terms && signed} />
+      <SessionTerms show={!props.terms && props.signed} />
       <RequestModal RequestExit={RequestExit} />
 
       <div id="mobile-banner">
@@ -364,7 +497,7 @@ export const App = (props: {validators: [], withdrawals: {}, exits: {}}) => {
           className="d-flex align-items-center" id="claim-btn" 
           onClick={() => Claim()}>
           <h1>Claim {Rewards()}</h1>
-          <img src="img/Ethereum.svg"/>
+          <img width="40px" src="img/Smoothly.svg"/>
         </div>
       </div>
 

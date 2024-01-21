@@ -1,6 +1,6 @@
 import { formatEther, Contract, Signer, getBigInt, FixedNumber } from "ethers";
-import { usePublicClient } from 'wagmi';
 import { NETWORK } from "./constants";
+import { BaseError, ContractFunctionRevertedError } from 'viem';
 
 const STAKE_FEE = NETWORK.stakeFee;
 
@@ -9,21 +9,32 @@ export function formatEthAmount(amount: string) {
   return parseFloat(amount).toFixed(3);
 }
 
-export function useContract(signer: Signer): Contract {
+export const claimed = async (client, { functionName, args, account}) => {
   try {
-    return new Contract(
-      NETWORK.poolAddress, 
-      NETWORK.poolAbi, 
-      signer
-    );
+    const { request } = await client.simulateContract({
+      address: NETWORK.poolAddress,
+      abi: NETWORK.poolAbi,
+      functionName,
+      account, 
+      args    
+    });
+    return false;
   } catch(err) {
-    console.log(err);
-  }  
+    if (err instanceof BaseError) {
+      const revertError = err.walk(err => err instanceof ContractFunctionRevertedError)
+      if (revertError instanceof ContractFunctionRevertedError) {
+        const errorName = revertError.data?.errorName ?? ''
+        // do something with `errorName`
+        if(errorName == 'AlreadyClaimed') {
+          return true;
+        }
+      }
+    }
+  }
 }
 
-export async function getTimeRemaining() {
+export async function getTimeRemaining(provider) {
   try {
-    const provider = usePublicClient();
     const epochInterval = await provider.readContract({ 
       address: NETWORK.governanceAddress, 
       abi: NETWORK.governanceAbi,
@@ -100,7 +111,7 @@ export const tooltip1 = (validator: any): string => {
       return "This validator is accruing rewards which will become claimable upon your next block proposal!"
     } 
     case 'Active': {
-      return "This validator is active accruing rewards!"
+      return "This validator is active and accruing rewards!"
     }
   }
 }

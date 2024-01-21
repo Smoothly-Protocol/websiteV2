@@ -104,7 +104,8 @@ export default function Index() {
     withdrawals,
     exits,
     pool,
-    signed
+    signed,
+    terms
   } = useLoaderData<typeof loader>();
 
   const authenticationAdapter = createAuthenticationAdapter({
@@ -158,7 +159,10 @@ export default function Index() {
               <App 
                 validators={validators}
                 withdrawals={withdrawals}
-                exits={exits}/>
+                exits={exits}
+                signed={signed}
+                terms={terms}
+                />
               <Footer pool={pool}/>
             </div>
           </RainbowKitProvider>

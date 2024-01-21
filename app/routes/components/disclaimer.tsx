@@ -18,6 +18,9 @@ export const Modal = (props: {selected: number[], Subscribe: any}) => {
     const disclaimer3 = window.document.getElementById("disclaimer3").checked;
     if(disclaimer1 && disclaimer2 && disclaimer3) {
       props.Subscribe(); 
+      let modal = document.querySelector('#exampleModal');
+      let btn = window.bootstrap.Modal.getOrCreateInstance(modal);
+      btn.hide();
     }
   }
 
@@ -67,7 +70,6 @@ export const Modal = (props: {selected: number[], Subscribe: any}) => {
             <button 
               type="button" 
               className="btn btn-dark fs-5 m-0 lato"
-              data-bs-dismiss="modal"
               onClick={(e: any) => execute(e)}>
               Deposit {formatEthAmount((Number(NETWORK.stakeFee) * props.selected.length).toString())} ETH and subscribe {props.selected.length} validators</button>
           </div>
@@ -117,13 +119,12 @@ export const SessionTerms = (props: {show: boolean}) => {
 
           <div className="modal-body p-2">
             <div className="p-5 pt-0">
-              <h1 className="fs-2 p-4">Finalized Epochs and Session-Based Connection</h1>
+              <h1 className="fs-2 p-4">Oracle Operators Listen to Finalized Epochs </h1>
               <ul >
-                <li className="fs-5">Transactions submitted in your current session will be picked up after the epoch is finalized.</li>
-                <li className="fs-5">Epochs finalize ~12 mins after submission.</li>
-                <li className="fs-5">If you log out and back in, you may not immediately see your last transaction.</li>
-                <li className="fs-5">Avoid submitting duplicate transactions to prevent loss of funds.</li>
-                <li className="fs-5">Unsure about a transaction? Wait 15 mins or check on a blockchain explorer.</li>
+                <li className="fs-5">Transactions will update immediatly on the dashboard, but will not finalize for ~12 min.</li>
+                <li className="fs-5">If you disconnect and reconnect your wallet, you may not immediately see your last transaction.</li>
+                <li className="fs-5">Avoid submitting duplicate transactions to prevent a loss of funds.</li>
+                <li className="fs-5">If you're unsure about a transaction, wait 15 min or check the hash on etherscan.</li>
               </ul>
             </div>
           </div>

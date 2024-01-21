@@ -2,7 +2,7 @@ export {
   formatEthAmount,
   status,
   state,
-  useContract,
+  claimed,
   getTimeRemaining,
   tooltip1,
   tooltip2,

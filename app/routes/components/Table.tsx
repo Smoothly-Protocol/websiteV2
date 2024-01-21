@@ -4,7 +4,6 @@ import {
   status,
   state,
   NETWORK, 
-  useContract,
   tooltip1,
   tooltip2
 } from '../utils';
