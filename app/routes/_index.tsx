@@ -16,7 +16,7 @@ import { useLoaderData, useRouteError } from "@remix-run/react";
 import { getSession, commitSession } from "../sessions";
 import { Validators } from './mock/validators'; // Remove - only testing
 import { getValidators, getWithdrawals, getExits, getPool } from './poolData.ts';
-import { terms } from './utils';
+import { Terms } from './utils';
 import { useEffect } from 'react';
 
 export const meta: MetaFunction = () => {
@@ -118,7 +118,7 @@ export default function Index() {
       return new SiweMessage({
         domain: window.location.host,
         address,
-        statement: terms,
+        statement: Terms,
         uri: window.location.origin,
         version: '1',
         chainId,

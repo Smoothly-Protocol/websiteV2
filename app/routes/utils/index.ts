@@ -10,4 +10,4 @@ export {
 } from './helpers';
 
 export { NETWORK, switchNetwork } from './constants';
-export { terms } from './terms';
+export { Terms } from './terms';

@@ -1,4 +1,4 @@
-export const terms = `
+export const Terms = `
 
 By signing this message, you agree to and understand the following Terms of Service:
 
