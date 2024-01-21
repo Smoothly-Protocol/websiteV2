@@ -149,8 +149,6 @@ export const App = (props: {validators, withdrawals, exits, signed, terms}) => {
     } finally {
       setHash(false);
       if(!userRejected) {
-        setSelectedS([]);
-        setAlert(alertMessage); 
         if(!reverted) {
           const req = await fetch('/register', {
             method: 'POST',
@@ -162,6 +160,8 @@ export const App = (props: {validators, withdrawals, exits, signed, terms}) => {
             setValidators(res.data);
           }
         }
+        setSelectedS([]);
+        setAlert(alertMessage); 
       }
     }
   }
@@ -255,8 +255,6 @@ export const App = (props: {validators, withdrawals, exits, signed, terms}) => {
       // Reset
       setHash(false);
       if(!userRejected) {
-        setSelectedE([]);
-        setAlert(alertMessage);
         if(!reverted) {
           const req = await fetch('/exits', {
             method: 'POST',
@@ -269,6 +267,8 @@ export const App = (props: {validators, withdrawals, exits, signed, terms}) => {
             setValidators(res.data);
           }
         }
+        setSelectedE([]);
+        setAlert(alertMessage);
       }
     }
   }
