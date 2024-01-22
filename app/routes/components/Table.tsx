@@ -31,7 +31,7 @@ export const Table = (props: {
     }
 
     loadToolTips();
-  }, [selectedE, selectedS]);
+  }, [selectedE, selectedS, Validators]);
 
   if(Validators.length > 0) {
   return(

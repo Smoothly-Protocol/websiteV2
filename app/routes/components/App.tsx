@@ -2,7 +2,8 @@ import React, { createContext, useState, useEffect } from 'react';
 import { Table } from "./Table";
 import { Modal, SessionTerms, RequestModal } from "./disclaimer";
 import { NETWORK } from "../utils";
-import { useAccount, useWalletClient, usePublicClient } from 'wagmi';
+import { watchAccount } from '@wagmi/core'
+import { useAccount, useWalletClient, usePublicClient, useChainId } from 'wagmi';
 import { BaseError, ContractFunctionRevertedError } from 'viem';
 import { getTimeRemaining, formatEthAmount, claimed } from '../utils';
 import { useLoaderData } from "@remix-run/react";
@@ -18,7 +19,7 @@ export const App = (props: {validators, withdrawals, exits, signed, terms}) => {
   const { data: walletClient } = useWalletClient();
   const [eventWatcherLoaded, setEventWatcherLoaded] = useState(false);
   const [validators, setValidators] = useState(props.validators);
-  const [withdrawals, setWithdrawals] = useState(props.withdrawals);
+  const [withdrawals, setWithdrawals] = useState();
   const [exits, setExits] = useState(props.exits);
   const [days, setDays] = useState();
   const [hours, setHours] = useState();
@@ -29,13 +30,23 @@ export const App = (props: {validators, withdrawals, exits, signed, terms}) => {
   const [hash, setHash] = useState();
 
   useEffect(() => {
+    const logout = async () => {
+      if(days) {
+        await fetch('/auth/logout', { method: "POST" });
+        window.location.href = '/';
+      }
+    }
+    logout();
+  }, [address]);
+
+  useEffect(() => {
     const load = async () => {
       const d = await getTimeRemaining(client);
       setDays(d.days);
       setHours(d.hours);
       setMinutes(d.minutes);
 
-      if(withdrawals.proof.length > 0) {
+      if(props.withdrawals && props.withdrawals.proof.length > 0) {
         const rewards = await claimed(client, {
           functionName: 'withdrawRewards',
           args: [
@@ -51,7 +62,7 @@ export const App = (props: {validators, withdrawals, exits, signed, terms}) => {
           : setWithdrawals(props.withdrawals);
       }
 
-      if(exits.proof.length > 0) {
+      if(exits && exits.proof.length > 0) {
         const stake = await claimed(client, {
           functionName: 'withdrawStake',
           args: [
@@ -116,8 +127,22 @@ export const App = (props: {validators, withdrawals, exits, signed, terms}) => {
     let reverted = false;
     setHash(true);
     try {
+      // Validate
+      const req = await fetch('/registerValidate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ indexes: selectedS, address }),
+      });
+      const { ok , data } = await req.json();
+      if(ok) {
+        for(let id of data) {
+          if(id.status != 'ok') {
+            throw new Error(`Invalid Validator ${id.index} is ${id.status}`);
+          }
+        }
+      }
+
       // Write 
-      const [address] = await walletClient.getAddresses();
       const { request } = await client.simulateContract({
         address: NETWORK.poolAddress,
         abi: NETWORK.poolAbi,
@@ -134,6 +159,10 @@ export const App = (props: {validators, withdrawals, exits, signed, terms}) => {
       if(err.message.includes('User rejected the request')) {
         userRejected = true;
       }
+      if(err.message.includes('Invalid Validator')) {
+        reverted = true;
+        alertMessage = err.message;
+      }
       if (err instanceof BaseError) {
         const revertError = err.walk(err => err instanceof ContractFunctionRevertedError)
         if (revertError instanceof ContractFunctionRevertedError) {
@@ -146,6 +175,7 @@ export const App = (props: {validators, withdrawals, exits, signed, terms}) => {
           reverted = true;
         }
       } 
+      console.log(err);
     } finally {
       setHash(false);
       if(!userRejected) {
@@ -153,7 +183,7 @@ export const App = (props: {validators, withdrawals, exits, signed, terms}) => {
           const req = await fetch('/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ indexes: selectedS }),
+            body: JSON.stringify({ indexes: selectedS, address }),
           });
           const res = await req.json();
           if(res.ok) {
@@ -173,7 +203,6 @@ export const App = (props: {validators, withdrawals, exits, signed, terms}) => {
     let reverted = false;
     setHash(true);
     try {
-      const [address] = await walletClient.getAddresses();
       const { request } = await client.simulateContract({
         address: NETWORK.poolAddress,
         abi: NETWORK.poolAbi,
@@ -213,8 +242,12 @@ export const App = (props: {validators, withdrawals, exits, signed, terms}) => {
       if(!userRejected) {
         setAlert(alertMessage); 
         if(!reverted) {
-          await fetch('/claim', { method: 'POST' });
-          setWithdrawals({ proof: [] });
+          const req = await fetch('/claim', { method: 'POST' });
+          const res = await req.json();
+          if(res.ok) {
+            setValidators(res.data);
+            setWithdrawals({ proof: [] });
+          }
         }
       }
     }
@@ -227,7 +260,6 @@ export const App = (props: {validators, withdrawals, exits, signed, terms}) => {
     setHash(true);
     try {
       // Write 
-      const [address] = await walletClient.getAddresses();
       const { request } = await client.simulateContract({
         address: NETWORK.poolAddress,
         abi: NETWORK.poolAbi,
@@ -281,7 +313,6 @@ export const App = (props: {validators, withdrawals, exits, signed, terms}) => {
     setHash(true);
     try {
       // Write 
-      const [address] = await walletClient.getAddresses();
       const { request } = await client.simulateContract({
         address: NETWORK.poolAddress,
         abi: NETWORK.poolAbi,
@@ -339,7 +370,6 @@ export const App = (props: {validators, withdrawals, exits, signed, terms}) => {
     setHash(true);
     try {
       // Write 
-      const [address] = await walletClient.getAddresses();
       const { request } = await client.simulateContract({
         address: NETWORK.poolAddress,
         abi: NETWORK.poolAbi,
@@ -375,11 +405,15 @@ export const App = (props: {validators, withdrawals, exits, signed, terms}) => {
       if(!userRejected) {
         setAlert(alertMessage);
         if(!reverted) {
-          const verifyRes = await fetch('/addbond', {
+          const req = await fetch('/addbond', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ index: index }),
           });
+          const res = await req.json();
+          if(res.ok) {
+            setValidators(res.data);
+          }
         }
       }
     }

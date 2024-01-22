@@ -34,7 +34,7 @@ export const Header = () => {
 
           { mobile &&
             <div className="align-right">
-              <ConnectButton chainStatus="none"/>
+              <ConnectButton chainStatus="name"/>
             </div>
           }
 
@@ -58,7 +58,7 @@ export const Header = () => {
 
           { !mobile &&
             <div className="align-right">
-              <ConnectButton chainStatus="none"/>
+              <ConnectButton chainStatus="name"/>
             </div>
           }
 

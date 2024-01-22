@@ -8,6 +8,7 @@ import { configureChains, createConfig, WagmiConfig } from 'wagmi';
 import { mainnet, goerli } from 'wagmi/chains';
 import { publicProvider } from 'wagmi/providers/public';
 import { SiweMessage } from 'siwe';
+import { watchAccount } from '@wagmi/core'
 import type { MetaFunction } from "@remix-run/node";
 import { Header, Footer, App } from "./components";
 import { ConnectButton } from '@rainbow-me/rainbowkit';

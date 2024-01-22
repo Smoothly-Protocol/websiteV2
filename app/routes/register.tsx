@@ -10,14 +10,13 @@ export const action = async ({
 }: ActionFunctionArgs) => {
   try {
     let validators = [];
-    const { indexes } = await request.json();
+    const { indexes, address } = await request.json();
     const session = await getSession(
       request.headers.get("Cookie")
     );
 
     if (session.has('validators')) {
       validators = session.get('validators');
-      const eth1Addr = session.get('siwe').data.address;
 
       // Update validators
       for(let index of indexes) {
@@ -26,7 +25,7 @@ export const action = async ({
             if(!validator.rewards) {
               const newUser: Validator = {
                 index: index, 
-                 eth1: eth1Addr.toLowerCase(),
+                 eth1: address.toLowerCase(),
                  rewards: { hex: '0x0' },
                  slashMiss: 0,
                  slashFee: 0, 

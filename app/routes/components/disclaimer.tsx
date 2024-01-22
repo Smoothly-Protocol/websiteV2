@@ -1,5 +1,6 @@
 import { NETWORK, formatEthAmount } from "../utils";
 import React, { useEffect } from 'react';
+import { useAccount } from 'wagmi';
 
 const copyText = async (e: any) => {
   try {
@@ -11,8 +12,9 @@ const copyText = async (e: any) => {
 }
 
 export const Modal = (props: {selected: number[], Subscribe: any}) => {
+  const { address } = useAccount();
 
-  const execute = () => {
+  const execute = async () => {
     const disclaimer1 = window.document.getElementById("disclaimer1").checked;
     const disclaimer2 = window.document.getElementById("disclaimer2").checked;
     const disclaimer3 = window.document.getElementById("disclaimer3").checked;
@@ -21,6 +23,7 @@ export const Modal = (props: {selected: number[], Subscribe: any}) => {
       let modal = document.querySelector('#exampleModal');
       let btn = window.bootstrap.Modal.getOrCreateInstance(modal);
       btn.hide();
+
     }
   }
 
