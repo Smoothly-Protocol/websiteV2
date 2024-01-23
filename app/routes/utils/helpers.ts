@@ -2,8 +2,6 @@ import { formatEther, Contract, Signer, getBigInt, FixedNumber } from "ethers";
 import { NETWORK } from "./constants";
 import { BaseError, ContractFunctionRevertedError } from 'viem';
 
-const STAKE_FEE = NETWORK.stakeFee;
-
 export function formatEthAmount(amount: string) {
   amount = formatEther(amount); 
   return parseFloat(amount).toFixed(3);
@@ -81,7 +79,7 @@ export const status = (validator: any): string => {
 
 export const state = (validator: any): string => {
   if(!validator.stake) { return "Good" }
-  let fee = FixedNumber.fromValue(STAKE_FEE);
+  let fee = FixedNumber.fromValue(NETWORK.stakeFee);
   let stake = FixedNumber.fromValue(validator.stake.hex); 
   if(validator.slashMiss > 0) {
     return "Missed block proposal";

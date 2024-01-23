@@ -1,12 +1,26 @@
 const server = process.env.SERVER; 
+const api = process.env.BEACONCHAIN;
 
 export const getValidators = async (address: string) => {
   try {
     const { data } = await (
       await fetch(`${server}/validators/${address}`)
     ).json();
-    return data;
-  } catch {
+
+    // Verify for activity
+    let validators = [];
+    for(let v of data) {
+      const url = `${api}/api/v1/validator/${v.index}`;
+      const { data } = await (
+        await fetch(url)
+      ).json();
+      if(data.status == 'active_online' || v.stake) {
+        validators.push(v);
+      }
+    }
+    return validators;
+  } catch(err) {
+    console.log(err);
     console.log("Couldn't get validators from oracle");
     return [];
   }
