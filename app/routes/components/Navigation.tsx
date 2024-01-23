@@ -51,7 +51,7 @@ export const Header = () => {
                 <a className="nav-link" href="https://docs.smoothly.money" target="_blank">Docs</a>
               </li>
               <li className="link nav-item">
-                <a className="nav-link" href="#" target="_blank">Donate</a>
+                <a className="nav-link" href="https://smoothly.money/#donate" target="_blank">Donate</a>
               </li>
             </ul>
           </div>
