@@ -131,11 +131,6 @@ const Action2 = (props: {
     ? formatEthAmount(props.validator.stake.hex) 
     : "0.00"; 
 
-  let fee = FixedNumber.fromValue(NETWORK.stakeFee); 
-  let fixedStake = props.validator.stake 
-    ? FixedNumber.fromValue(props.validator.stake.hex) 
-    : null; 
-
   if(props.exits.proof.length > 0 && props.exits.proof[1].includes(props.validator.index)) {
     return(
       <div 
@@ -151,23 +146,29 @@ const Action2 = (props: {
     )
   }
 
-  if(fixedStake && fee.gt(fixedStake) && props.validator.active) {
+  if(props.validator.active &&
+    (NETWORK.stakeFee > props.validator.stake.hex)
+  ) {
       let needs = formatEthAmount(NETWORK.missFee);
       return (
         <div 
           className="t-container-2 purple-btn-hover"
           onMouseEnter={(e: any) => {changeTextOver(e, "purple", `Add ${needs} bond >`)}}
           onMouseLeave={(e: any) => {changeTextOut(e, "purple", stake)}}
-          onClick={() => props.AddBond(index)}
+          onClick={() => props.AddBond(props.validator)}
         >
           <span className="ft-number">
            {stake}
           </span>
         </div>
       )
-  } else{
+  } else {
     return(
-      <div className="t-container-2">
+      <div 
+        className="t-container-2"
+        onMouseEnter={(e: any) => {changeStakeOut(e, stake)}}
+        onMouseLeave={(e: any) => {changeStakeOut(e, stake)}}
+      >
         <span className="ft-number">
           {stake}
         </span>
@@ -281,6 +282,14 @@ const changeTextOver = (x: any, color: string, text: string) => {
 const changeTextOut = (x: any, color: string, text: string) => {
   x.target.classList.remove(`${color}-btn`);
   x.target.classList.add(`${color}-btn-hover`);
+  x.target.innerHTML = `
+    <span class="ft-number">
+      ${text}
+    </span>
+  `;
+} 
+
+const changeStakeOut = (x: any, text: string) => {
   x.target.innerHTML = `
     <span class="ft-number">
       ${text}

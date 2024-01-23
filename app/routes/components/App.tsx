@@ -13,7 +13,7 @@ import { EventWatch } from "./EventWatch";
 
 export const SelectContext = createContext();
 
-export const App = (props: {validators, withdrawals, exits, signed, terms}) => {
+export const App = (props: {validators, withdrawals, exits, signed, terms, adapter}) => {
   const client = usePublicClient();
   const { address, status } = useAccount();
   const { data: walletClient } = useWalletClient();
@@ -31,9 +31,8 @@ export const App = (props: {validators, withdrawals, exits, signed, terms}) => {
 
   useEffect(() => {
     const logout = async () => {
-      if(days) {
-        await fetch('/auth/logout', { method: "POST" });
-        window.location.href = '/';
+      if(days && signed) {
+        await props.adapter.signOut();;
       }
     }
     logout();
@@ -235,12 +234,11 @@ export const App = (props: {validators, withdrawals, exits, signed, terms}) => {
           }
           reverted = true;
         }
-      }    
+      }   
     } finally {
       // Update state
       setHash(false);
       if(!userRejected) {
-        setAlert(alertMessage); 
         if(!reverted) {
           const req = await fetch('/claim', { method: 'POST' });
           const res = await req.json();
@@ -249,6 +247,7 @@ export const App = (props: {validators, withdrawals, exits, signed, terms}) => {
             setWithdrawals({ proof: [] });
           }
         }
+        setAlert(alertMessage); 
       }
     }
   }
@@ -350,7 +349,6 @@ export const App = (props: {validators, withdrawals, exits, signed, terms}) => {
     } finally {
       setHash(false);
       if(!userRejected) {
-        setAlert(alertMessage);
         if(!reverted) {
           const req = await fetch('/withdrawBond', { method: 'POST' });
           const res = await req.json();
@@ -359,23 +357,26 @@ export const App = (props: {validators, withdrawals, exits, signed, terms}) => {
             setWithdrawals({ proof: [] });
           }
         }
+        setAlert(alertMessage);
       }
     }
   }
 
-  const AddBond = async (index) => {
+  const AddBond = async (validator) => {
     let alertMessage = 'Successfully Added Bond';
     let userRejected = false;
-    let reverted = true;
+    let reverted = false;
     setHash(true);
     try {
+      const max = NETWORK.stakeFee;
+      if(validator.stake.hex >= max) { throw new Error('Bond is already reached') };
       // Write 
       const { request } = await client.simulateContract({
         address: NETWORK.poolAddress,
         abi: NETWORK.poolAbi,
         functionName: 'addStake',
         account: address, 
-        args: [index],
+        args: [validator.index],
         value: NETWORK.missFee,
       });
 
@@ -385,6 +386,10 @@ export const App = (props: {validators, withdrawals, exits, signed, terms}) => {
     } catch(err: any) {
       if(err.message.includes('User rejected the request')) {
         userRejected = true;
+      }
+      if(err.message.includes('Bond is already reached')) {
+        reverted = true;
+        alertMessage = err.message;
       }
       if (err instanceof BaseError) {
         const revertError = err.walk(err => err instanceof ContractFunctionRevertedError)
@@ -403,27 +408,27 @@ export const App = (props: {validators, withdrawals, exits, signed, terms}) => {
     } finally {
       setHash(false);
       if(!userRejected) {
-        setAlert(alertMessage);
         if(!reverted) {
           const req = await fetch('/addbond', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ index: index }),
+            body: JSON.stringify({ index: validator.index }),
           });
           const res = await req.json();
           if(res.ok) {
             setValidators(res.data);
           }
         }
+        setAlert(alertMessage);
       }
     }
   }
 
   useEffect(() => {
     if(status == 'disconnected') {
-      setValidators([]); 
+      //setValidators([]); 
     } else if(status == 'connected') {
-      setValidators(props.validators); 
+      //setValidators(props.validators); 
     }
   }, [status]);
 

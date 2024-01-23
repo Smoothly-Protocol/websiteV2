@@ -1,6 +1,6 @@
 export const Validators = [
   {
-    "index":472165,
+    "index":3876190,
     "eth1":"0x336c442488cfed1a132d9f6edac282f977bb3fa7",
     "rewards":{
       "type":"BigNumber",
@@ -19,7 +19,7 @@ export const Validators = [
     "deactivated":false
   },
   {
-    "index":472166,
+    "index":432211,
     "eth1":"0x336c442488cfed1a132d9f6edac282f977bb3fa7",
     "rewards":{
       "type":"BigNumber",
@@ -38,7 +38,7 @@ export const Validators = [
     "deactivated":false
   },
   {
-    "index":472167,
+    "index":432212,
     "eth1":"0x336c442488cfed1a132d9f6edac282f977bb3fa7",
     "rewards":{
       "type":"BigNumber",

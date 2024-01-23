@@ -5,9 +5,12 @@ export const Alert = (props:{ text: string, setText: any }) => {
   useEffect(() => {
     let modal = document.querySelector('#alertModal');
     let alert = window.bootstrap.Modal.getOrCreateInstance(modal);
+    let modal2 = document.querySelector('#loaderModal');
+    let spinner = window.bootstrap.Modal.getOrCreateInstance(modal2);
 
     modal.addEventListener('hidden.bs.modal', function (event) {
       props.setText();
+      spinner.hide();
     })
 
     if(props.text) {

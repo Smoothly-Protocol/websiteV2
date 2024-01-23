@@ -144,6 +144,7 @@ export default function Index() {
 
     signOut: async () => {
       await fetch('/auth/logout', { method: "POST" }); 
+      window.location.reload();
     },
   });
 
@@ -163,6 +164,7 @@ export default function Index() {
                 exits={exits}
                 signed={signed}
                 terms={terms}
+                adapter={authenticationAdapter}
                 />
               <Footer pool={pool}/>
             </div>

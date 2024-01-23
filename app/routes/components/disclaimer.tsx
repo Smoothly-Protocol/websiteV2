@@ -124,7 +124,7 @@ export const SessionTerms = (props: {show: boolean}) => {
             <div className="p-5 pt-0">
               <h1 className="fs-2 p-4">Oracle Operators Listen to Finalized Epochs </h1>
               <ul >
-                <li className="fs-5">Transactions will update immediatly on the dashboard, but will not finalize for ~12 min.</li>
+                <li className="fs-5">Transactions will update immediately on the dashboard, but will not finalize for ~12 min.</li>
                 <li className="fs-5">If you disconnect and reconnect your wallet, you may not immediately see your last transaction.</li>
                 <li className="fs-5">Avoid submitting duplicate transactions to prevent a loss of funds.</li>
                 <li className="fs-5">If you're unsure about a transaction, wait 15 min or check the hash on etherscan.</li>
