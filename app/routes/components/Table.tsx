@@ -128,8 +128,8 @@ const Action2 = (props: {
   const index = props.validator.index;
   const { data: walletClient } = useWalletClient();
   const stake = props.validator.stake 
-    ? formatEthAmount(props.validator.stake.hex) 
-    : "0.00"; 
+      ? formatEthAmount(props.validator.stake.hex) 
+      : "0.00";
 
   if(props.exits.proof.length > 0 && props.exits.proof[1].includes(props.validator.index)) {
     return(
@@ -155,7 +155,7 @@ const Action2 = (props: {
           className="t-container-2 purple-btn-hover"
           onMouseEnter={(e: any) => {changeTextOver(e, "purple", `Add ${needs} bond >`)}}
           onMouseLeave={(e: any) => {changeTextOut(e, "purple", stake)}}
-          onClick={() => props.AddBond(props.validator)}
+          onClick={async () => {await props.AddBond(props.validator); window.location.reload()}}
         >
           <span className="ft-number">
            {stake}

@@ -39,7 +39,7 @@ td:last-child {
 
 #main {
   background-color: #EAEAEA;
-  height: 100vh;
+  min-height: 100vh;
   padding: 50px;
 }
 

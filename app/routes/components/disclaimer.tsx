@@ -59,7 +59,7 @@ export const Modal = (props: {selected: number[], Subscribe: any}) => {
               </div>
               <div className="p-2 disclaimer-check">
                 <input className="me-2" type="checkbox" id="disclaimer2" name="disclaimer2"/>
-                <label className="lato fs-5" htmlFor="disclaimer2">I know that running MEV Boost and subscribing to one or more of the <a href="https://docs.smoothly.money/oracle-operators#monitoring-relays" target="_blank">monitored relays</a> is required</label>
+                <label className="lato fs-5" htmlFor="disclaimer2">I know that running MEV Boost and subscribing to one or more of the <a href="https://docs.smoothly.money/relay-monitoring" target="_blank">monitored relays</a> is required</label>
               </div>
               <div className="p-2 disclaimer-check">
                 <input className="me-2" type="checkbox" id="disclaimer3" name="disclaimer3"/>

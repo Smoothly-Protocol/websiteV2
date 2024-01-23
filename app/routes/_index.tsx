@@ -17,7 +17,7 @@ import { useLoaderData, useRouteError } from "@remix-run/react";
 import { getSession, commitSession } from "../sessions";
 import { Validators } from './mock/validators'; // Remove - only testing
 import { getValidators, getWithdrawals, getExits, getPool } from './poolData.ts';
-import { Terms } from './utils';
+import { Terms, changeNetwork } from './utils';
 import { useEffect } from 'react';
 
 export const meta: MetaFunction = () => {
@@ -31,6 +31,7 @@ export const loader = async ({
   request,
 }: LoaderFunctionArgs) => {
   try {
+  const network = process.env.NETWORK;
   const session = await getSession(
     request.headers.get("Cookie")
   );
@@ -70,14 +71,15 @@ export const loader = async ({
       signed: signed,
       validators: session.get("validators"),
       withdrawals: session.get("withdrawals"),
-      exits: session.get("exits")
+      exits: session.get("exits"),
+      network
     }, {
       headers: {
         "Set-Cookie": cookie,
       }
     });
   } else {
-    return json({ status: "unauthenticated", pool: pool});
+    return json({ status: "unauthenticated", pool: pool, network});
   }
   } catch(err) {
     console.log(err)
@@ -85,7 +87,26 @@ export const loader = async ({
 };
 
 export default function Index() {
-  const { chains, publicClient } = configureChains([goerli], [publicProvider()]);
+  const { 
+    status, 
+    validators,
+    withdrawals,
+    exits,
+    pool,
+    signed,
+    terms,
+    network
+  } = useLoaderData<typeof loader>();
+  
+  let net = goerli;
+  if(network == 'mainnet') {
+    changeNetwork(network);
+    net = mainnet;
+  } else if(network == 'goerli') {
+    changeNetwork(network);
+  }
+
+  const { chains, publicClient } = configureChains([net], [publicProvider()]);
 
   const { connectors } = getDefaultWallets({
     appName: 'Smoothly Protocol',
@@ -99,15 +120,6 @@ export default function Index() {
     publicClient
   });
 
-  const { 
-    status, 
-    validators,
-    withdrawals,
-    exits,
-    pool,
-    signed,
-    terms
-  } = useLoaderData<typeof loader>();
 
   const authenticationAdapter = createAuthenticationAdapter({
     getNonce: async () => {
@@ -143,6 +155,10 @@ export default function Index() {
     },
 
     signOut: async () => {
+      let modal = document.querySelector('#loaderModal');
+      let spinner = window.bootstrap.Modal.getOrCreateInstance(modal);
+      spinner.show();
+
       await fetch('/auth/logout', { method: "POST" }); 
       window.location.reload();
     },
