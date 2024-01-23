@@ -7,14 +7,19 @@ export const getValidators = async (address: string) => {
       await fetch(`${server}/validators/${address}`)
     ).json();
 
-    // Verify for activity
     let validators = [];
     for(let v of data) {
       const url = `${api}/api/v1/validator/${v.index}`;
       const { data } = await (
         await fetch(url)
       ).json();
-      if(data.status == 'active_online' || v.stake) {
+
+      // Verify activeness 
+      if(
+        data.status == 'active_offline' || 
+        data.status == 'active_online' || 
+         v.stake
+      ) {
         validators.push(v);
       }
     }
