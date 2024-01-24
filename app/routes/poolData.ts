@@ -3,12 +3,13 @@ const api = process.env.BEACONCHAIN;
 
 export const getValidators = async (address: string) => {
   try {
-    const { data } = await (
+    let d = await (
       await fetch(`${server}/validators/${address}`)
     ).json();
 
     let validators = [];
-    for(let v of data) {
+    for(let [i, v] of d.data.entries()) {
+      if(d.data.findIndex(x => x.index == v.index) != i) {continue} // Avoid Dups
       const url = `${api}/api/v1/validator/${v.index}`;
       const { data } = await (
         await fetch(url)
