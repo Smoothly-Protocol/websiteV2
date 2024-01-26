@@ -8,11 +8,15 @@ export const Header = () => {
 
   useEffect(() => { 
     if(typeof window == 'undefined') return;
+    const width = window.screen.width;
+    width > 991 ? setMobile(false) : setMobile(true);
+    
     const handleResize = () => {
       // Perform actions on window resize
       const width = window.screen.width;
       width > 991 ? setMobile(false) : setMobile(true);
     };
+
     window.addEventListener('resize', handleResize);
     return () => {
       window.removeEventListener('resize', handleResize);
@@ -42,7 +46,7 @@ export const Header = () => {
             <span className="navbar-toggler-icon"></span>
           </button>
 
-          <div className="collapse navbar-collapse" id="navbarNav">
+          <div className="collapse navbar-collapse " id="navbarNav">
             <ul className="navbar-nav align-middle fs-4">
               <li className="link nav-item">
                 <a className="nav-link" href="https://docs.smoothly.money/how-to-guide" target="_blank">Get Started</a>
@@ -69,6 +73,7 @@ export const Header = () => {
 }
 
 export const Footer = (props: {pool: Object}) => {
+  const [mobile, setMobile] = useState(false);
   const [gas, setGas] = useState(38.51);
   const provider = usePublicClient();
 
@@ -80,6 +85,23 @@ export const Footer = (props: {pool: Object}) => {
     } 
     loadGas()
   },[gas]);
+
+  useEffect(() => { 
+    if(typeof window == 'undefined') return;
+    const width = window.screen.width;
+    width > 991 ? setMobile(false) : setMobile(true);
+
+    const handleResize = () => {
+      // Perform actions on window resize
+      const width = window.screen.width;
+      width > 991 ? setMobile(false) : setMobile(true);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   return (
     <footer className="navbar pt-5 ">
@@ -93,7 +115,7 @@ export const Footer = (props: {pool: Object}) => {
                 alt="Subscriber" 
                 className="icon"
                 />
-               <span>{props.pool.awaiting_activation + props.pool.activated} subscribers</span>
+               <span className="fs-4">{props.pool.awaiting_activation + props.pool.activated} {!mobile && 'subscribers'}</span>
             </li>
             <li className="link d-flex align-items-center fs-4">
               <img 
@@ -101,7 +123,7 @@ export const Footer = (props: {pool: Object}) => {
                 alt="Ethereum Logo" 
                 className="icon"
                 />
-               <span>0.11 avg reward</span>
+               <span className="fs-4">0.11 {!mobile && 'avg reward'}</span>
             </li>
             <li className="link d-flex align-items-center fs-4">
               <img 
@@ -109,7 +131,7 @@ export const Footer = (props: {pool: Object}) => {
                 alt="Gas" 
                 className="icon"
                 />
-               <span>{gas} gwei</span>
+               <span className="fs-4">{gas} {!mobile && 'gwei'}</span>
             </li>
           </ul> 
         </div>
