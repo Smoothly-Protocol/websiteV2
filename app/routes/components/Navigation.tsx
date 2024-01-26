@@ -2,6 +2,7 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useState, useEffect } from 'react';
 import { useLoaderData } from "@remix-run/react";
 import { usePublicClient } from 'wagmi';
+import { formatEthAmount } from '../utils';
 
 export const Header = () => {
   const [mobile, setMobile] = useState(false);
@@ -123,7 +124,7 @@ export const Footer = (props: {pool: Object}) => {
                 alt="Ethereum Logo" 
                 className="icon"
                 />
-               <span className="fs-4">0.11 {!mobile && 'avg reward'}</span>
+               <span className="fs-4">{props.pool.total_value_period.hex ? formatEthAmount(props.pool.total_value_period.hex) : "0.00"} {!mobile && 'reward cycle total'}</span>
             </li>
             <li className="link d-flex align-items-center fs-4">
               <img 
