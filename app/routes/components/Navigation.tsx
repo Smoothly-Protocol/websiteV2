@@ -105,7 +105,7 @@ export const Footer = (props: {pool: Object}) => {
 
   return (
     <footer className="navbar pt-5 ">
-      <div className="container-fluid p-0" id="footer">
+      <div className="container-fluid p-0 justify-content-between" id="footer">
 
         <div>
           <ul className="navbar-nav d-flex flex-row">

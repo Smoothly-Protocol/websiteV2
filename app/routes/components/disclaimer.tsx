@@ -121,7 +121,7 @@ export const SessionTerms = (props: {show: boolean}) => {
           </div>
 
           <div className="modal-body p-2">
-            <div className="p-5 pt-0">
+            <div id="session-content" className="p-5 pt-0">
               <h1 className="fs-2 p-4">Oracle Operators Listen to Finalized Epochs </h1>
               <ul >
                 <li className="fs-5">Transactions will update immediately on the dashboard, but will not finalize for ~12 min.</li>

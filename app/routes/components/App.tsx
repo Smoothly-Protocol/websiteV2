@@ -550,8 +550,8 @@ export const App = (props: {validators, withdrawals, exits, signed, terms, adapt
 
       <div className="d-block d-lg-none">
         <div className="d-flex align-items-center justify-content-center">
-          <img src="img/date.svg" className="icon"/>
-          <p className="m-0 fs-5 secondary"><b>{time()}</b> to next rebalancing</p>
+          <img src="img/date.svg" className="icon" id="date"/>
+          <p className="m-0 fs-4 secondary text-center"><b>{time()}</b> left in the current rewards cycle</p>
         </div>
       </div>
 

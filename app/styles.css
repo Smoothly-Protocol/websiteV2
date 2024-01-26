@@ -397,6 +397,7 @@ tr:hover .grey-btn-hover{
     display: flex;
     align-items: center;
     flex-direction: column;
+    padding: 20px;
   }
 
 }
@@ -417,14 +418,15 @@ tr:hover .grey-btn-hover{
     font-size: 15px;
     font-weight: 500px;
   }
-
+  
+  #footer {
+    display: flex;
+    justify-content: center !important;
+  }
+    
   .icon {
     width: 15px;
     height: 15px;
-  }
-
-  #claim-btn {
-    padding: 25px;
   }
 
   #status-info {
@@ -433,6 +435,11 @@ tr:hover .grey-btn-hover{
 
   #claim-btn {
     margin: 20px;
+    margin-top: 40px;
+  }
+
+  #claim-btn h1 {
+    font-size: 30px;
   }
 
   thead th:nth-child(3) {
@@ -444,3 +451,12 @@ tr:hover .grey-btn-hover{
   }
 }
 
+@media (max-width: 467px) {
+  #date  {
+    display: none !important;
+  }
+
+  #session-content {
+    padding: 10px !important;
+  }
+}
