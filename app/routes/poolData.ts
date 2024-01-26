@@ -7,6 +7,10 @@ export const getValidators = async (address: string) => {
       await fetch(`${server}/validators/${address}`)
     ).json();
 
+    if(process.env.NETWORK == 'goerli') {
+      return d.data;
+    }
+
     let validators = [];
     for(let [i, v] of d.data.entries()) {
       if(d.data.findIndex(x => x.index == v.index) != i) {continue} // Avoid Dups
