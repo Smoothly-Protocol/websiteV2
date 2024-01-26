@@ -91,7 +91,7 @@ export const Table = (props: {
                 data-bs-toggle="tooltip" 
                 data-bs-placement="top"
                 data-bs-title={tooltip1(validator)}>
-                <span className="ft-text">?</span>
+                <span tabindex="0" className="ft-text">?</span>
               </div>
             ) : (
               <div 
@@ -99,7 +99,7 @@ export const Table = (props: {
                 data-bs-toggle="tooltip" 
                 data-bs-placement="top"
                 data-bs-title={tooltip2(validator)}>
-                <span className="ft-text">!</span>
+                <span tabindex="0" className="ft-text">!</span>
               </div>
             )}
             </td>
@@ -204,7 +204,7 @@ const Action3 = (props: {validator: any}) => {
         <div className={`t-container-3 ${isSelected ? "grey-btn" : "purple-btn"}`} 
           onClick={() => updateSelectionS()}>
           <span className="ft-text">
-           { isSelected ? "Selected" : 'Subscribe >'}
+           { isSelected ? "Selected" : 'Subscribe'}
           </span>
         </div>
       )

@@ -441,7 +441,7 @@ export const App = (props: {validators, withdrawals, exits, signed, terms, adapt
   }, [status]);
 
   return(
-    <div className="container-fluid d-flex flex-column pt-5 pb-3">
+    <div id="app" className="container-fluid d-flex flex-column pt-5 pb-3">
 
       {/* Modals */}
       <Modal selected={selectedS} Subscribe={Subscribe}/> 
@@ -494,7 +494,7 @@ export const App = (props: {validators, withdrawals, exits, signed, terms, adapt
               {(selectedS.length + selectedE.length) == 0 &&
               <>
               <img src="img/date.svg" className="icon"/>
-              <p className="m-0 fs-4 secondary"><b>{time()}</b> left in the current rewards cycle</p>
+              <p className="m-0 fs-4 secondary"><b>{time()}</b> left in the current reward cycle</p>
               </>
               }
             </div>
@@ -551,7 +551,7 @@ export const App = (props: {validators, withdrawals, exits, signed, terms, adapt
       <div className="d-block d-lg-none">
         <div className="d-flex align-items-center justify-content-center">
           <img src="img/date.svg" className="icon" id="date"/>
-          <p className="m-0 fs-4 secondary text-center"><b>{time()}</b> left in the current rewards cycle</p>
+          <p id="rewards-title" className="m-0fs-4 secondary text-center"><b>{time()}</b> left in the current reward cycle</p>
         </div>
       </div>
 

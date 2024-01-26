@@ -442,18 +442,67 @@ tr:hover .grey-btn-hover{
     font-size: 30px;
   }
 
-  thead th:nth-child(3) {
+  #app {
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0 !important;
+  }
+  
+  .t-container-1 span, 
+  .t-container-2 span,
+  .t-container-3 span {
+    font-size: 16px;
+  }
+
+  .t-head {
+    font-size: 16px;
+  }
+
+  .info-1 {
+    border: none !important;
+    padding: 0 !important;
+    width: auto !important;
+  }
+
+  .ft-text {
+    font-size: 16px;
+  }
+
+  tbody td {
+  }
+
+  #rewards-title {
+    margin: 0 !important;
+    font-size: 16px !important;
+  }
+
+  tbody th:nth-child(1) {
+    padding-right: 0 !important;
+    padding-left: 0 !important;
+  }
+  tbody td:nth-child(2) {
+    padding-left: 0 !important;
+  }
+
+  tbody td:nth-child(4) {
+    /*display: none !important;*/
+    padding-right: 0 !important;
+  }
+
+  thead th:nth-child(4) img {
     display: none !important;
   }
 
-  tbody td:nth-child(2) {
-    display: none !important;
+  tbody td:nth-child(5) {
+    /*display: none !important;*/
+    width: 20px !important;
   }
 }
 
 @media (max-width: 467px) {
-  #date  {
-    display: none !important;
+  #date p {
+    /*display: none !important;*/
+    font-size: 16px !important;
   }
 
   #session-content {
