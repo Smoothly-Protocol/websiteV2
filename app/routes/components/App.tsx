@@ -162,6 +162,10 @@ export const App = (props: {validators, withdrawals, exits, signed, terms, adapt
         reverted = true;
         alertMessage = err.message;
       }
+      if(err.message.includes('insufficient funds')) {
+        reverted = true;
+        alertMessage = "Account has insufficient funds";
+      }
       if (err instanceof BaseError) {
         const revertError = err.walk(err => err instanceof ContractFunctionRevertedError)
         if (revertError instanceof ContractFunctionRevertedError) {
@@ -390,6 +394,10 @@ export const App = (props: {validators, withdrawals, exits, signed, terms, adapt
       if(err.message.includes('Bond is already reached')) {
         reverted = true;
         alertMessage = err.message;
+      }
+      if(err.message.includes('insufficient funds')) {
+        reverted = true;
+        alertMessage = "Account has insufficient funds";
       }
       if (err instanceof BaseError) {
         const revertError = err.walk(err => err instanceof ContractFunctionRevertedError)
