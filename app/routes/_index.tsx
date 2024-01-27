@@ -131,7 +131,7 @@ export default function Index() {
       return new SiweMessage({
         domain: window.location.host,
         address,
-        statement: Terms,
+        statement: "you agree to the Terms of Service, which can be found at: https://docs.smoothly.money/terms-of-service",
         uri: window.location.origin,
         version: '1',
         chainId,
