@@ -399,7 +399,17 @@ tr:hover .grey-btn-hover{
     flex-direction: column;
     padding: 20px;
   }
+  
+  #disclaimer-boxes, #exitModal{
+    padding: 10px !important;
+  }
 
+  #exit-modal-footer {
+    justify-content: center !important;
+  }
+  #exit-modal-footer p {
+    margin-bottom: 20px !important;
+  }
 }
 
 /* Small queries */
@@ -448,6 +458,14 @@ tr:hover .grey-btn-hover{
     padding-top: 0 !important;
   }
   
+  #fee-recipient {
+    font-size: 16px !important;
+  }
+
+  #fee-recipient-box {
+    justify-content: center !important;
+  }
+
   .t-container-1 span, 
   .t-container-2 span,
   .t-container-3 span {
@@ -462,6 +480,17 @@ tr:hover .grey-btn-hover{
     border: none !important;
     padding: 0 !important;
     width: auto !important;
+  }
+
+  .info-2 {
+    padding: 0 !important;
+    width: auto !important;
+    background: transparent;
+    color: black;
+  }
+
+  .lato {
+    font-size: 16px !important
   }
 
   .ft-text {

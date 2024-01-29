@@ -504,6 +504,46 @@ export const App = (props: {validators, withdrawals, exits, signed, terms, adapt
       </div>
       {/*<p className="m-0 d-none d-lg-block fs-4 secondary">Hover to see available actions</p>*/}
 
+        {/* Mobile action buttons */}
+        <div className="d-block d-lg-none">
+            <div className="d-flex align-items-center justify-content-center pt-4">
+              {/* Select Subscribers */}
+              {selectedS.length > 0 && 
+              <>
+              <button 
+                type="button" 
+                className="btn btn-secondary fs-6"
+                onClick={() => Cancel()}>
+                X
+              </button>
+              <button 
+                type="button" 
+                className="btn btn-dark ms-4 fs-6"
+                data-bs-toggle="modal" data-bs-target="#exampleModal">
+                Subscribe {selectedS.length} validators
+              </button>
+              </>
+              }
+
+              {/* Select Exits */}
+              {selectedE.length > 0 && 
+              <>
+              <button 
+                type="button" 
+                className="btn btn-secondary fs-6"
+                onClick={() => Cancel()}>
+                X 
+              </button>
+              <button 
+                type="button" 
+                className="btn btn-dark fs-6 ms-4"
+                data-bs-toggle="modal" data-bs-target="#requestModal">
+                Request Exit for {selectedE.length} validators</button>
+              </>
+              }
+            </div>
+        </div>
+
       <div>
       <div className="d-flex justify-content-center mt-5 mb-3 table-responsive">
         <SelectContext.Provider value={{selectedS, selectedE, setSelectedS, setSelectedE}}>
@@ -540,6 +580,7 @@ export const App = (props: {validators, withdrawals, exits, signed, terms, adapt
           </div>
         </div>
 
+
         <div 
           className="d-flex align-items-center" id="claim-btn" 
           onClick={() => Claim()}>
@@ -551,7 +592,7 @@ export const App = (props: {validators, withdrawals, exits, signed, terms, adapt
       <div className="d-block d-lg-none">
         <div className="d-flex align-items-center justify-content-center">
           <img src="img/date.svg" className="icon" id="date"/>
-          <p id="rewards-title" className="m-0fs-4 secondary text-center"><b>{time()}</b> left in the current reward cycle</p>
+          <p id="rewards-title" className="m-0 fs-4 secondary text-center"><b>{time()}</b> left in the current reward cycle</p>
         </div>
       </div>
 

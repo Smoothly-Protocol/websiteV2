@@ -1,5 +1,5 @@
 import { NETWORK, formatEthAmount } from "../utils";
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAccount } from 'wagmi';
 
 const copyText = async (e: any) => {
@@ -13,6 +13,7 @@ const copyText = async (e: any) => {
 
 export const Modal = (props: {selected: number[], Subscribe: any}) => {
   const { address } = useAccount();
+  const [poolAddress, setPoolAddress] = useState(NETWORK.poolAddress);
 
   const execute = async () => {
     const disclaimer1 = window.document.getElementById("disclaimer1").checked;
@@ -27,44 +28,55 @@ export const Modal = (props: {selected: number[], Subscribe: any}) => {
     }
   }
 
+  useEffect(() => {
+    if (window.screen.width <= 600) {
+      let s = String(NETWORK.poolAddress); 
+      setPoolAddress(`${s.slice(0,6)}...${s.slice(38,42)}`);
+    }
+  },[]);
+
   return(
     <div className="modal fade" id="exampleModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
       <div className="modal-dialog modal-dialog-centered modal-xl">
         <div className="modal-content">
 
-          <div className="modal-header align-items-start p-5 pb-0">
+          <div id="disclaimer-header" className="modal-header align-items-start p-5 pb-0">
             <div id="exampleModalLabel">
               <div className="d-flex align-items-center"> 
                 <img className="me-2" width="40px" src="img/disclaimer.svg"/>
                 <h1 className="modal-title fs-2">Disclaimer</h1>
               </div>
-              <p className="disclaimer fs-5 mt-2">Please read and check all statements before subscribing:</p>
             </div>
 
-            <button type="button" className="btn btn-secondary fs-5 align-top lato" data-bs-dismiss="modal" aria-label="Close">BACK</button>
+            <button type="button" className="btn btn-secondary fs-5 align-top lato" data-bs-dismiss="modal" aria-label="Close">X</button>
           </div>
 
           <div className="modal-body p-2">
-            <div className="d-flex justify-content-center align-items-center">
+            <p className="disclaimer fs-5 ps-5 mt-2">Please read and check all statements before subscribing:</p>
+            <div className="d-flex flex-wrap justify-content-center align-items-center">
               {props.selected.map((index: any, key: string) => (
                 <div key={key} className="d-flex justify-content-center align-items-center subscriber-box p-2 m-2 fs-4"> 
                   {index}
                 </div>
               ))}
             </div>
-            <div className="p-5 pt-0">
-              <div className="p-2 disclaimer-check">
+            <div id="disclaimer-boxes" className="p-5 pt-0">
+              <div className="d-flex p-2 disclaimer-check">
                 <input className="me-2" type="checkbox" id="disclaimer1" name="disclaimer1"/>
                 <label className="lato fs-5" htmlFor="disclaimer1">I’ve read the Smoothly <a href="https://docs.smoothly.money" target="_blank">documentation</a>, <a href="https://docs.smoothly.money/terms-of-service" target="_blank">Terms of Service</a> and understand how the pool functions</label>
               </div>
-              <div className="p-2 disclaimer-check">
+              <div className="d-flex p-2 disclaimer-check">
                 <input className="me-2" type="checkbox" id="disclaimer2" name="disclaimer2"/>
                 <label className="lato fs-5" htmlFor="disclaimer2">I know that running MEV Boost and subscribing to one or more of the <a href="https://docs.smoothly.money/relay-monitoring" target="_blank">monitored relays</a> is required</label>
               </div>
-              <div className="p-2 disclaimer-check">
-                <input className="me-2" type="checkbox" id="disclaimer3" name="disclaimer3"/>
-                <label className="lato fs-5" htmlFor="disclaimer3">I’ve verified the fee recipient in my validator client is &nbsp; </label>
-                <span onClick={(e: any) => copyText(e)} id="fee-recipient">{NETWORK.poolAddress} {copyBtn()}</span>
+              <div id="fee-recipient-box" className="d-flex flex-wrap p-2 disclaimer-check">
+                <div className="d-flex">
+                  <input className="me-2" type="checkbox" id="disclaimer3" name="disclaimer3"/>
+                  <label className="lato fs-5" htmlFor="disclaimer3">I’ve verified the fee recipient in my validator client is: &nbsp; </label>
+                </div>
+                <>
+                <span className="d-flex align-items-center" onClick={(e: any) => copyText(e)} id="fee-recipient">{poolAddress} {copyBtn()}</span>
+                </>
               </div>
             </div>
           </div>
@@ -83,6 +95,7 @@ export const Modal = (props: {selected: number[], Subscribe: any}) => {
 
   );
 }
+
 
 const copyBtn = () => {
   return (
@@ -163,7 +176,7 @@ export const RequestModal = (props: { RequestExit: any }) => {
           </div>
 
           <div className="modal-body p-2">
-            <div className="p-5">
+            <div id="exitModal" className="p-5">
               <ul >
                 <li className="fs-5">Requesting an exit for a Pending validator will result in its accrued rewards being added to the pool!</li>
                 <li className="fs-5">If your validator is Active, your accrued rewards will remain claimable</li>
@@ -171,7 +184,7 @@ export const RequestModal = (props: { RequestExit: any }) => {
             </div>
           </div>
 
-          <div className="modal-footer p-5 pt-0 d-flex justify-content-between"> 
+          <div id="exit-modal-footer" className="modal-footer p-5 pt-0 d-flex justify-content-between"> 
               <p className="disclaimer fs-5 mt-2">
               For more details, please visit our <a href="https://docs.smoothly.money" target="_blank">
               documentation</a>
