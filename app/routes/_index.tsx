@@ -8,17 +8,14 @@ import { configureChains, createConfig, WagmiConfig } from 'wagmi';
 import { mainnet, goerli } from 'wagmi/chains';
 import { publicProvider } from 'wagmi/providers/public';
 import { SiweMessage } from 'siwe';
-import { watchAccount } from '@wagmi/core'
 import type { MetaFunction } from "@remix-run/node";
 import { Header, Footer, App } from "./components";
-import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { json } from "@remix-run/node";
 import { useLoaderData, useRouteError } from "@remix-run/react";
 import { getSession, commitSession } from "../sessions";
-import { Validators } from './mock/validators'; // Remove - only testing
-import { getValidators, getWithdrawals, getExits, getPool } from './poolData.ts';
-import { Terms, changeNetwork } from './utils';
-import { useEffect } from 'react';
+//import { Validators } from './mock/validators'; // Remove - only testing
+import { getValidators, getWithdrawals, getExits, getPool, updateValidatorState } from './poolData';
+import { changeNetwork } from './utils';
 
 export const meta: MetaFunction = () => {
   return [
@@ -37,17 +34,18 @@ export const loader = async ({
   );
   
   // Query pool data
-  let pool = await getPool();
+  const pool = await getPool();
+
+  updateValidatorState();
 
   // Verify auth
-  let signed = session.has('siwe');
+  const signed = session.has('siwe');
   if(session.has('siwe')) {
     const siwe = session.get('siwe');
     const addr = siwe.data.address;
-    let validators, withdrawals, exits, terms;
 
     // Update session
-    terms = session.has('validators');
+    const terms = session.has('validators');
     session.has('validators')
       ? 0 
       : session.set('validators', (await getValidators(addr)));

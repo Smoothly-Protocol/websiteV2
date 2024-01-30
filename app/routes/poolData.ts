@@ -1,9 +1,11 @@
+import type { Validator } from "./types";
+
 const server = process.env.SERVER; 
 const api = process.env.BEACONCHAIN;
 
 export const getValidators = async (address: string) => {
   try {
-    let d = await (
+    const d = await (
       await fetch(`${server}/validators/${address}`)
     ).json();
 
@@ -12,7 +14,7 @@ export const getValidators = async (address: string) => {
     }
 
     let validators = [];
-    for(let [i, v] of d.data.entries()) {
+    for(const [i, v] of d.data.entries()) {
       if(d.data.findIndex(x => x.index == v.index) != i) {continue} // Avoid Dups
       const url = `${api}/api/v1/validator/${v.index}`;
       const { data } = await (
@@ -28,6 +30,8 @@ export const getValidators = async (address: string) => {
         validators.push(v);
       }
     }
+
+    validators = await updateValidatorState(validators);
     return validators;
   } catch(err) {
     console.log(err);
@@ -35,6 +39,24 @@ export const getValidators = async (address: string) => {
     return [];
   }
 }
+
+export const updateValidatorState = async (
+  validators: Validator[]
+): Promise<Validator[]> => {
+  try {
+    const epochs = await Promise.all([reqEpoch("finalized"),reqEpoch("latest")]);
+    const [finalized, latest] = epochs.sort();
+  
+    for(let epoch = finalized; epoch <= latest; epoch++) {
+      console.log(epoch);
+    }
+
+   return validators; 
+  } catch(err) {
+    console.log(err);
+    throw "Error updating validators";
+  }
+};
 
 export const getWithdrawals = async (address: string) => {
   try {
@@ -66,5 +88,16 @@ export const getPool = async () => {
   } catch {
     console.log("Couldn't get validators from oracle");
     return {};
+  }
+}
+
+const reqEpoch = async (_epoch: string) => {
+  try { 
+    const { data } = await(
+      await fetch(`${api}/api/v1/epoch/${_epoch}`)
+    ).json();
+    return data.epoch;
+  } catch {
+    throw "Beacon chain not responding";
   }
 }
