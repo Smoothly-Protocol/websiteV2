@@ -20,7 +20,7 @@ const MAINNET = {
 }
 
 export let NETWORK = GOERLI; 
-export const changeNetwork = (network) =>  {
+export const changeNetwork = (network: string) =>  {
   if(network == 'goerli') {
     NETWORK = GOERLI; 
   } else if(network == 'mainnet') {
@@ -28,3 +28,10 @@ export const changeNetwork = (network) =>  {
   }
 }
 
+export const getNetwork = (network: string) =>  {
+  if(network == 'goerli') {
+    return GOERLI; 
+  } else if(network == 'mainnet') {
+    return MAINNET; 
+  }
+}

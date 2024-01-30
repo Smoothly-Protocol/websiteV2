@@ -9,5 +9,5 @@ export {
   getGasPrice
 } from './helpers';
 
-export { NETWORK, changeNetwork } from './constants';
+export { NETWORK, changeNetwork, getNetwork } from './constants';
 export { Terms } from './terms';

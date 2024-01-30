@@ -1,7 +1,16 @@
 import type { Validator } from "./types";
+import { createPublicClient, http, decodeEventLog } from 'viem'
+import { mainnet, goerli } from 'viem/chains'
+import { getNetwork } from './utils';
 
 const server = process.env.SERVER; 
 const api = process.env.BEACONCHAIN;
+const network = process.env.NETWORK;
+
+const publicClient = createPublicClient({
+  chain: network == "mainnet" ? mainnet : goerli,
+  transport: http()
+})
 
 export const getValidators = async (address: string) => {
   try {
@@ -25,7 +34,7 @@ export const getValidators = async (address: string) => {
       if(
         data.status == 'active_offline' || 
         data.status == 'active_online' || 
-         v.stake
+      v.stake
       ) {
         validators.push(v);
       }
@@ -44,17 +53,48 @@ export const updateValidatorState = async (
   validators: Validator[]
 ): Promise<Validator[]> => {
   try {
-    const epochs = await Promise.all([reqEpoch("finalized"),reqEpoch("latest")]);
-    const [finalized, latest] = epochs.sort();
-  
-    for(let epoch = finalized; epoch <= latest; epoch++) {
-      console.log(epoch);
+     const epochs = await Promise.all([reqEpoch("finalized"),reqEpoch("latest")]);
+     const [finalized, latest] = epochs.sort();
+
+    const { poolAddress, poolAbi } = getNetwork(network as string);
+    const logs = await publicClient.getLogs({  
+      address: poolAddress,
+      fromBlock: BigInt(10432507),
+      toBlock: BigInt(10432558)
+    })
+    
+    for(const log of logs) {
+      const { eventName, args } = decodeEventLog({ 
+        abi: poolAbi,
+        data: log.data,
+        topics: log.topics 
+      });
+      
+      switch(eventName) {
+        case 'ExitRequested': {
+          console.log('exited', eventName, args);
+          break;
+        } case 'Registered': {
+          console.log('register', eventName, args);
+          break;
+        } case 'RewardsWithdrawal': {
+          console.log('claim', eventName, args);
+          break;
+        } case 'StakeAdded': {
+          console.log('added stake', eventName, args);
+          break;
+        } case 'StakeWithdrawal': {
+          console.log('stake withdrawal', eventName, args);
+          break;
+        }
+      }
+
     }
 
-   return validators; 
+    return validators; 
   } catch(err) {
     console.log(err);
-    throw "Error updating validators";
+    return validators;
   }
 };
 
