@@ -1,10 +1,10 @@
 export interface Validator {
   index: number, 
   eth1: string,
-  rewards: number, 
+  rewards: { hex: string }, 
   slashMiss: number, 
   slashFee: number 
-  stake: number, 
+  stake: { hex: string }, 
   firstBlockProposed: boolean, 
   firstMissedSlot: boolean,  
   excludeRebalance?: boolean,
@@ -13,3 +13,11 @@ export interface Validator {
   deactivated: boolean
 }
 
+export interface NET {
+  poolAddress: string,
+  governanceAddress: string,
+  poolAbi: any,
+  governanceAbi: any, 
+  stakeFee: bigint,
+  missFee: bigint,
+}

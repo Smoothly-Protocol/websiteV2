@@ -1,6 +1,6 @@
 export const Validators = [
   {
-    "index":3876190,
+    "index":432212,
     "eth1":"0x336c442488cfed1a132d9f6edac282f977bb3fa7",
     "rewards":{
       "type":"BigNumber",
@@ -20,7 +20,7 @@ export const Validators = [
   },
   {
     "index":432211,
-    "eth1":"0x336c442488cfed1a132d9f6edac282f977bb3fa7",
+    "eth1":"0x77336C1fbef4668A0940D2E19ABF0D977bd6a851",
     "rewards":{
       "type":"BigNumber",
       "hex":"0x10763b42734dab3a"
@@ -38,7 +38,7 @@ export const Validators = [
     "deactivated":false
   },
   {
-    "index":432212,
+    "index":472169,
     "eth1":"0x336c442488cfed1a132d9f6edac282f977bb3fa7",
     "rewards":{
       "type":"BigNumber",
@@ -57,7 +57,7 @@ export const Validators = [
     "deactivated":false
   },
   {
-    "index":472168,
+    "index":432292,
     "eth1":"0x336c442488cfed1a132d9f6edac282f977bb3fa7",
     "rewards":{
       "type":"BigNumber",
@@ -76,7 +76,7 @@ export const Validators = [
     "deactivated":false
   },
   {
-    "index":472169,
+    "index":432296,
     "eth1":"0x336c442488cfed1a132d9f6edac282f977bb3fa7",
     "rewards":{
       "type":"BigNumber",
@@ -93,6 +93,15 @@ export const Validators = [
     "exitRequested":false,
     "active":true,
     "deactivated":false
+  },
+  {
+    "index": 432310,
+  },
+  {
+    "index": 432311,
+  },
+  {
+    "index":472171,
   },
   {
     "index":472171,

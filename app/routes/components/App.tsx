@@ -1,26 +1,34 @@
-import React, { createContext, useState, useEffect } from 'react';
+import { createContext, useState, useEffect } from 'react';
 import { Table } from "./Table";
 import { Modal, SessionTerms, RequestModal } from "./disclaimer";
-import { NETWORK } from "../utils";
-import { watchAccount } from '@wagmi/core'
-import { useAccount, useWalletClient, usePublicClient, useChainId } from 'wagmi';
-import { BaseError, ContractFunctionRevertedError } from 'viem';
-import { getTimeRemaining, formatEthAmount, claimed } from '../utils';
-import { useLoaderData } from "@remix-run/react";
 import { Loader } from "./Loader";
 import { Alert } from "./Alert";
 import { EventWatch } from "./EventWatch";
+import { 
+  useAccount, 
+  useWalletClient, 
+  usePublicClient, 
+} from 'wagmi';
+import { 
+  BaseError, 
+  ContractFunctionRevertedError, 
+} from 'viem';
+import { 
+  getTimeRemaining, 
+  formatEthAmount, 
+  claimed, 
+  NETWORK 
+} from '../utils';
 
 export const SelectContext = createContext();
 
-export const App = (props: {validators, withdrawals, exits, signed, terms, adapter}) => {
+export const App = () => {
   const client = usePublicClient();
   const { address, status } = useAccount();
   const { data: walletClient } = useWalletClient();
-  const [eventWatcherLoaded, setEventWatcherLoaded] = useState(false);
-  const [validators, setValidators] = useState(props.validators);
-  const [withdrawals, setWithdrawals] = useState();
-  const [exits, setExits] = useState(props.exits);
+  const [validators, setValidators] = useState([]);
+  const [withdrawals, setWithdrawals] = useState({ proof: [] });
+  const [exits, setExits] = useState({ proof: [] });
   const [days, setDays] = useState();
   const [hours, setHours] = useState();
   const [minutes, setMinutes] = useState();
@@ -28,15 +36,7 @@ export const App = (props: {validators, withdrawals, exits, signed, terms, adapt
   const [selectedE, setSelectedE] = useState([]);
   const [alert, setAlert] = useState();
   const [hash, setHash] = useState();
-
-  useEffect(() => {
-    const logout = async () => {
-      if(days && signed) {
-        await props.adapter.signOut();;
-      }
-    }
-    logout();
-  }, [address]);
+  const [unwatch, setUnwatch] = useState();
 
   useEffect(() => {
     const load = async () => {
@@ -44,38 +44,35 @@ export const App = (props: {validators, withdrawals, exits, signed, terms, adapt
       setDays(d.days);
       setHours(d.hours);
       setMinutes(d.minutes);
+      
+      const data = await(await fetch(`pooldata?addr=${address}`)).json();
+      setValidators(data.validators);
 
-      if(props.withdrawals && props.withdrawals.proof.length > 0) {
-        const rewards = await claimed(client, {
-          functionName: 'withdrawRewards',
-          args: [
-            props.withdrawals.proof[0], 
-            props.withdrawals.proof[1], 
-            props.withdrawals.proof[2].hex
-          ],
-          account: address
-        })
+      const rewards = await claimed(client, {
+        functionName: 'withdrawRewards',
+        args: [
+          data.withdrawals.proof[0], 
+          data.withdrawals.proof[1], 
+          data.withdrawals.proof[2].hex
+        ],
+        account: address
+      })
+      rewards 
+        ? setWithdrawals({ proof: [] }) 
+        : setWithdrawals(data.withdrawals);
 
-        rewards 
-          ? setWithdrawals({ proof: [] }) 
-          : setWithdrawals(props.withdrawals);
-      }
-
-      if(exits && exits.proof.length > 0) {
-        const stake = await claimed(client, {
-          functionName: 'withdrawStake',
-          args: [
-            exits.proof[0], 
-            exits.proof[1], 
-            exits.proof[2].hex
-          ],
-          account: address
-        })
-        
-        stake 
-          ? setExits({ proof: [] }) 
-          : setExits(props.exits);
-      }
+      const stake = await claimed(client, {
+        functionName: 'withdrawStake',
+        args: [
+          data.exits.proof[0], 
+          data.exits.proof[1], 
+          data.exits.proof[2].hex
+        ],
+        account: address
+      })
+      stake 
+        ? setExits({ proof: [] }) 
+        : setExits(data.exits);
 
       // Update Validator state from logs
       /* TODO: Need to rethink this
@@ -84,8 +81,16 @@ export const App = (props: {validators, withdrawals, exits, signed, terms, adapt
         setEventWatcherLoaded(true);
       }*/
     }
-    load();
-  }, [days]);
+
+    if(status == 'disconnected') {
+      setValidators([]); 
+    } else if(status == 'connected') {
+      load();
+    } else if(validators.length > 0) {
+      EventWatch(client, address);
+    }
+
+  }, [address, status]);
 
   const time = () => {
     if(days > 0) {
@@ -100,7 +105,11 @@ export const App = (props: {validators, withdrawals, exits, signed, terms, adapt
 
   const Rewards = () => {
     try {
-      return formatEthAmount(withdrawals.proof[2].hex)
+      if(withdrawals) {
+        return formatEthAmount(withdrawals.proof[2].hex)
+      } else {
+        return 0;
+      }
     } catch {
       return 0;
     }
@@ -432,13 +441,6 @@ export const App = (props: {validators, withdrawals, exits, signed, terms, adapt
     }
   }
 
-  useEffect(() => {
-    if(status == 'disconnected') {
-      //setValidators([]); 
-    } else if(status == 'connected') {
-      //setValidators(props.validators); 
-    }
-  }, [status]);
 
   return(
     <div id="app" className="container-fluid d-flex flex-column pt-5 pb-3">
@@ -447,7 +449,7 @@ export const App = (props: {validators, withdrawals, exits, signed, terms, adapt
       <Modal selected={selectedS} Subscribe={Subscribe}/> 
       <Loader hash={hash}/>
       <Alert text={alert} setText={setAlert}/>
-      <SessionTerms show={!props.terms && props.signed} />
+      {/*<SessionTerms show={!props.terms && props.signed} />*/}
       <RequestModal RequestExit={RequestExit} />
 
       <div id="mobile-banner">

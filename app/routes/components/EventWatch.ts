@@ -1,55 +1,30 @@
 import { NETWORK } from "../utils";
-import { decodeEventLog } from 'viem';
+import { decodeEventLog, Log, parseAbi } from 'viem';
 
-const handleLogs = async (logs, v) => {
-  const { validators, setValidators } = v;
+const handleLogs = async (logs) => {
+  /*
   const { eventName, args } = decodeEventLog({ 
     abi: NETWORK.poolAbi,
     data: logs[0].data,
     topics: logs[0].topics 
   });
-
-  // Parse only user logs
-  if(validators[0].eth1 != args.eth1.toLowerCase()) {
-    return;
-  }
-
-  switch(eventName) {
-    case 'ExitRequested': {
-      const req = await fetch('/exits', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ indexes: args.indexes.map(x => Number(x)) }),
-      });
-      const res = await req.json();
-      if(res.ok) {
-        setValidators(res.data);
-      }
-    } case 'Registered': {
-      const req = await fetch('/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ indexes: args.indexes.map(x => Number(x)) }),
-      });
-      const res = await req.json();
-      if(res.ok) {
-        setValidators(res.data);
-      }
-    } case 'RewardsWithdrawal': {
-      await fetch('/claim', { method: 'POST' });
-    }
-  }
+ */
+  
+  console.log(logs);
 }
 
-const handleErrors = (error) => {
-  console.log(error);
-}
-
-export const EventWatch = (client, validators) => {
-  const unwatch = client.watchEvent({
+let unwatch: () => void | undefined;
+export const EventWatch = (client, address) => {
+  client.watchEvent({
     address: NETWORK.poolAddress,
-    onLogs: logs => handleLogs(logs, validators),
-    onError: error => handleErrors(error)    
+    events: parseAbi([
+      "event Registered(address indexed eth1, uint64[] indexes)",
+      "event RewardsWithdrawal(address indexed eth1, uint64[] indexes, uint256 value)",
+      "event StakeWithdrawal(address indexed eth1, uint64[] indexes, uint256 value)",
+      "event StakeAdded(address indexed eth1, uint64 index, uint256 value)",
+      "event ExitRequested(address indexed eth1, uint64[] indexes)"
+    ]),
+    onLogs: logs => handleLogs(logs),
   });
 }
 

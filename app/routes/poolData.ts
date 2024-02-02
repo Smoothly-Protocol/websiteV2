@@ -1,7 +1,16 @@
 import type { Validator } from "./types";
-import { createPublicClient, http, decodeEventLog } from 'viem'
+import { createPublicClient, http, parseAbi } from 'viem'
 import { mainnet, goerli } from 'viem/chains'
 import { getNetwork } from './utils';
+import { 
+  ExitRequested,
+  Registered,
+  RewardsWithdrawal,
+  StakeAdded,
+  StakeWithdrawal
+} from './simulate';
+import { json, LoaderFunctionArgs } from "@remix-run/node";
+import { Validators } from './mock/validators';
 
 const server = process.env.SERVER; 
 const api = process.env.BEACONCHAIN;
@@ -12,17 +21,43 @@ const publicClient = createPublicClient({
   transport: http()
 })
 
+export const loader = async ({
+  request,
+}: LoaderFunctionArgs) => {
+  try {
+    const url = new URL(request.url);
+    const addr = url.searchParams.get("addr") as string;
+    const [
+      validators,
+      withdrawals,
+      exits
+    ] = await Promise.all([
+      getValidators(addr),
+      getWithdrawals(addr),
+      getExits(addr),
+    ]);
+    return json({ validators, withdrawals, exits });
+  } catch(err) {
+    console.log(err)
+  }
+};
+
 export const getValidators = async (address: string) => {
   try {
+    let validators: Validator[] = [];
+    /*
     const d = await (
       await fetch(`${server}/validators/${address}`)
     ).json();
+    */
+    const d = Validators;
 
     if(process.env.NETWORK == 'goerli') {
-      return d.data;
+      await updateValidatorState(d, address);
+      //return d.data;
+      return d;
     }
 
-    let validators = [];
     for(const [i, v] of d.data.entries()) {
       if(d.data.findIndex(x => x.index == v.index) != i) {continue} // Avoid Dups
       const url = `${api}/api/v1/validator/${v.index}`;
@@ -34,14 +69,13 @@ export const getValidators = async (address: string) => {
       if(
         data.status == 'active_offline' || 
         data.status == 'active_online' || 
-      v.stake
+        v.stake
       ) {
         validators.push(v);
       }
     }
 
-    validators = await updateValidatorState(validators);
-    return validators;
+    return await updateValidatorState(validators, address);
   } catch(err) {
     console.log(err);
     console.log("Couldn't get validators from oracle");
@@ -50,48 +84,49 @@ export const getValidators = async (address: string) => {
 }
 
 export const updateValidatorState = async (
-  validators: Validator[]
-): Promise<Validator[]> => {
+  validators: Validator[],
+  address: string
+) => {
   try {
-     const epochs = await Promise.all([reqEpoch("finalized"),reqEpoch("latest")]);
-     const [finalized, latest] = epochs.sort();
-
-    const { poolAddress, poolAbi } = getNetwork(network as string);
+    const finalized = await publicClient.getBlock({ blockTag: 'finalized'});
+    const { poolAddress } = getNetwork(network as string);
     const logs = await publicClient.getLogs({  
       address: poolAddress,
-      fromBlock: BigInt(10432507),
-      toBlock: BigInt(10432558)
+      events: parseAbi([
+        "event Registered(address indexed eth1, uint64[] indexes)",
+        "event RewardsWithdrawal(address indexed eth1, uint64[] indexes, uint256 value)",
+        "event StakeWithdrawal(address indexed eth1, uint64[] indexes, uint256 value)",
+        "event StakeAdded(address indexed eth1, uint64 index, uint256 value)",
+        "event ExitRequested(address indexed eth1, uint64[] indexes)"
+      ]),
+      args: {
+        eht1: address
+      },
+      fromBlock: finalized.number,
     })
     
+    console.log(logs);
     for(const log of logs) {
-      const { eventName, args } = decodeEventLog({ 
-        abi: poolAbi,
-        data: log.data,
-        topics: log.topics 
-      });
-      
+      const {eventName, args } = log;
       switch(eventName) {
         case 'ExitRequested': {
-          console.log('exited', eventName, args);
+          ExitRequested(args.indexes, validators);
           break;
         } case 'Registered': {
-          console.log('register', eventName, args);
+          Registered(args.indexes, args.eth1, validators);
           break;
         } case 'RewardsWithdrawal': {
-          console.log('claim', eventName, args);
+          RewardsWithdrawal(args.indexes, validators);
           break;
         } case 'StakeAdded': {
-          console.log('added stake', eventName, args);
+          StakeAdded(args.index, validators);
           break;
         } case 'StakeWithdrawal': {
-          console.log('stake withdrawal', eventName, args);
+          StakeWithdrawal(args.indexes, validators);
           break;
         }
       }
-
     }
-
-    return validators; 
   } catch(err) {
     console.log(err);
     return validators;
@@ -128,16 +163,5 @@ export const getPool = async () => {
   } catch {
     console.log("Couldn't get validators from oracle");
     return {};
-  }
-}
-
-const reqEpoch = async (_epoch: string) => {
-  try { 
-    const { data } = await(
-      await fetch(`${api}/api/v1/epoch/${_epoch}`)
-    ).json();
-    return data.epoch;
-  } catch {
-    throw "Beacon chain not responding";
   }
 }
