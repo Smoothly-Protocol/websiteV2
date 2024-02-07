@@ -1,9 +1,46 @@
 import type { Validator } from './types';
-import { getNetwork } from './utils';
+import { getNetwork, NETWORK } from './utils';
+import { Log } from 'viem';
 
-const { stakeFee, missFee } = getNetwork(process.env.NETWORK as string);
+let stakeFee, missFee;
+if(typeof window == "undefined") {
+  let net = getNetwork(process.env.NETWORK);
+  stakeFee = net.stakeFee;
+  missFee = net.missFee;
+} else {
+  stakeFee = NETWORK.stakeFee; 
+  missFee = NETWORK.missFee; 
+}
 
-export const ExitRequested = async (
+export const executeLogs = (logs, validators) => {
+  try {
+    for(const log of logs) {
+      const {eventName, args } = log;
+      switch(eventName) {
+        case 'ExitRequested': {
+          ExitRequested(args.indexes, validators);
+          break;
+        } case 'Registered': {
+          Registered(args.indexes, args.eth1, validators);
+          break;
+        } case 'RewardsWithdrawal': {
+          RewardsWithdrawal(args.indexes, validators);
+          break;
+        } case 'StakeAdded': {
+          StakeAdded(args.index, validators);
+          break;
+        } case 'StakeWithdrawal': {
+          StakeWithdrawal(args.indexes, validators);
+          break;
+        }
+      }
+    }
+  } catch(err) {
+    console.log(err);
+  }
+}
+
+const ExitRequested = async (
   indexes: bigint[], 
   validators: Validator[]
 ) => {
@@ -21,7 +58,7 @@ export const ExitRequested = async (
   }
 }
 
-export const Registered = async (
+const Registered = async (
   indexes: bigint[], 
   address: string,
   validators: Validator[]
@@ -62,7 +99,7 @@ export const Registered = async (
   }
 }
 
-export const RewardsWithdrawal = async (
+const RewardsWithdrawal = async (
   indexes: bigint[], 
   validators: Validator[]
 ) => {
@@ -78,7 +115,7 @@ export const RewardsWithdrawal = async (
   }
 }
 
-export const StakeAdded = async (
+const StakeAdded = async (
   index: bigint, 
   validators: Validator[]
 ) => {
@@ -96,7 +133,7 @@ export const StakeAdded = async (
   }
 }
 
-export const StakeWithdrawal = async (
+const StakeWithdrawal = async (
   indexes: bigint[], 
   validators: Validator[]
 ) => {

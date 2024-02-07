@@ -36,59 +36,56 @@ export const App = () => {
   const [selectedE, setSelectedE] = useState([]);
   const [alert, setAlert] = useState();
   const [hash, setHash] = useState();
-  const [unwatch, setUnwatch] = useState();
 
   useEffect(() => {
     const load = async () => {
-      const d = await getTimeRemaining(client);
-      setDays(d.days);
-      setHours(d.hours);
-      setMinutes(d.minutes);
-      
-      const data = await(await fetch(`pooldata?addr=${address}`)).json();
-      setValidators(data.validators);
+      setHash(true);
+      try {
+        const d = await getTimeRemaining(client);
+        setDays(d.days);
+        setHours(d.hours);
+        setMinutes(d.minutes);
+        
+        const data = await(await fetch(`pooldata?addr=${address}`)).json();
+        setValidators(data.validators);
 
-      const rewards = await claimed(client, {
-        functionName: 'withdrawRewards',
-        args: [
-          data.withdrawals.proof[0], 
-          data.withdrawals.proof[1], 
-          data.withdrawals.proof[2].hex
-        ],
-        account: address
-      })
-      rewards 
-        ? setWithdrawals({ proof: [] }) 
-        : setWithdrawals(data.withdrawals);
+        const rewards = await claimed(client, {
+          functionName: 'withdrawRewards',
+          args: [
+            data.withdrawals.proof[0], 
+            data.withdrawals.proof[1], 
+            data.withdrawals.proof[2].hex
+          ],
+          account: address
+        })
+        rewards 
+          ? setWithdrawals({ proof: [] }) 
+          : setWithdrawals(data.withdrawals);
 
-      const stake = await claimed(client, {
-        functionName: 'withdrawStake',
-        args: [
-          data.exits.proof[0], 
-          data.exits.proof[1], 
-          data.exits.proof[2].hex
-        ],
-        account: address
-      })
-      stake 
-        ? setExits({ proof: [] }) 
-        : setExits(data.exits);
-
-      // Update Validator state from logs
-      /* TODO: Need to rethink this
-      if(days && !eventWatcherLoaded) {
-        EventWatch(client, {validators, setValidators});
-        setEventWatcherLoaded(true);
-      }*/
+        const stake = await claimed(client, {
+          functionName: 'withdrawStake',
+          args: [
+            data.exits.proof[0], 
+            data.exits.proof[1], 
+            data.exits.proof[2].hex
+          ],
+          account: address
+        })
+        stake 
+          ? setExits({ proof: [] }) 
+          : setExits(data.exits);
+      } catch(err) {
+        console.log(err);
+      } finally {
+        setHash(false);
+      }
     }
 
     if(status == 'disconnected') {
       setValidators([]); 
     } else if(status == 'connected') {
       load();
-    } else if(validators.length > 0) {
-      EventWatch(client, address);
-    }
+    } 
 
   }, [address, status]);
 
@@ -139,7 +136,7 @@ export const App = () => {
       const req = await fetch('/registerValidate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ indexes: selectedS, address }),
+        body: JSON.stringify({ indexes: selectedS, address, validators }),
       });
       const { ok , data } = await req.json();
       if(ok) {
@@ -148,7 +145,7 @@ export const App = () => {
             throw new Error(`Invalid Validator ${id.index} is ${id.status}`);
           }
         }
-      }
+      } else { return }
 
       // Write 
       const { request } = await client.simulateContract({
@@ -191,17 +188,6 @@ export const App = () => {
     } finally {
       setHash(false);
       if(!userRejected) {
-        if(!reverted) {
-          const req = await fetch('/register', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ indexes: selectedS, address }),
-          });
-          const res = await req.json();
-          if(res.ok) {
-            setValidators(res.data);
-          }
-        }
         setSelectedS([]);
         setAlert(alertMessage); 
       }
@@ -253,12 +239,7 @@ export const App = () => {
       setHash(false);
       if(!userRejected) {
         if(!reverted) {
-          const req = await fetch('/claim', { method: 'POST' });
-          const res = await req.json();
-          if(res.ok) {
-            setValidators(res.data);
-            setWithdrawals({ proof: [] });
-          }
+          setWithdrawals({ proof: [] });
         }
         setAlert(alertMessage); 
       }
@@ -299,18 +280,6 @@ export const App = () => {
       // Reset
       setHash(false);
       if(!userRejected) {
-        if(!reverted) {
-          const req = await fetch('/exits', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ indexes: selectedE }),
-          });
-          const res = await req.json();
-
-          if(res.ok) {
-            setValidators(res.data);
-          }
-        }
         setSelectedE([]);
         setAlert(alertMessage);
       }
@@ -363,12 +332,7 @@ export const App = () => {
       setHash(false);
       if(!userRejected) {
         if(!reverted) {
-          const req = await fetch('/withdrawBond', { method: 'POST' });
-          const res = await req.json();
-          if(res.ok) {
-            setValidators(res.data);
-            setWithdrawals({ proof: [] });
-          }
+          setExits({ proof: [] });
         }
         setAlert(alertMessage);
       }
@@ -425,17 +389,6 @@ export const App = () => {
     } finally {
       setHash(false);
       if(!userRejected) {
-        if(!reverted) {
-          const req = await fetch('/addbond', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ index: validator.index }),
-          });
-          const res = await req.json();
-          if(res.ok) {
-            setValidators(res.data);
-          }
-        }
         setAlert(alertMessage);
       }
     }
@@ -451,6 +404,7 @@ export const App = () => {
       <Alert text={alert} setText={setAlert}/>
       {/*<SessionTerms show={!props.terms && props.signed} />*/}
       <RequestModal RequestExit={RequestExit} />
+      <EventWatch validators={validators} setValidators={setValidators}/>
 
       <div id="mobile-banner">
         <div className="d-flex justify-content-between">

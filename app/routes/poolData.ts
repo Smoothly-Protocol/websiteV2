@@ -2,13 +2,7 @@ import type { Validator } from "./types";
 import { createPublicClient, http, parseAbi } from 'viem'
 import { mainnet, goerli } from 'viem/chains'
 import { getNetwork } from './utils';
-import { 
-  ExitRequested,
-  Registered,
-  RewardsWithdrawal,
-  StakeAdded,
-  StakeWithdrawal
-} from './simulate';
+import { executeLogs } from './simulate';
 import { json, LoaderFunctionArgs } from "@remix-run/node";
 import { Validators } from './mock/validators';
 
@@ -45,17 +39,15 @@ export const loader = async ({
 export const getValidators = async (address: string) => {
   try {
     let validators: Validator[] = [];
-    /*
     const d = await (
       await fetch(`${server}/validators/${address}`)
     ).json();
-    */
-    const d = Validators;
+    //const d = Validators;
 
     if(process.env.NETWORK == 'goerli') {
-      await updateValidatorState(d, address);
-      //return d.data;
-      return d;
+      await updateValidatorState(d.data, address);
+      return d.data;
+      //return d;
     }
 
     for(const [i, v] of d.data.entries()) {
@@ -104,29 +96,7 @@ export const updateValidatorState = async (
       },
       fromBlock: finalized.number,
     })
-    
-    console.log(logs);
-    for(const log of logs) {
-      const {eventName, args } = log;
-      switch(eventName) {
-        case 'ExitRequested': {
-          ExitRequested(args.indexes, validators);
-          break;
-        } case 'Registered': {
-          Registered(args.indexes, args.eth1, validators);
-          break;
-        } case 'RewardsWithdrawal': {
-          RewardsWithdrawal(args.indexes, validators);
-          break;
-        } case 'StakeAdded': {
-          StakeAdded(args.index, validators);
-          break;
-        } case 'StakeWithdrawal': {
-          StakeWithdrawal(args.indexes, validators);
-          break;
-        }
-      }
-    }
+    executeLogs(logs, validators); 
   } catch(err) {
     console.log(err);
     return validators;

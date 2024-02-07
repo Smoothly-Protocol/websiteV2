@@ -4,42 +4,31 @@ import { getSession, commitSession } from "../sessions";
 import { SiweMessage } from 'siwe';
 import { NETWORK } from './utils/constants';
 
-// POST - /register
+// POST - /registerValidate
 const api = process.env.BEACONCHAIN;
 
 export const action = async ({
   request,
 }: ActionFunctionArgs) => {
   try {
-    let validators = [];
-    let data = [];
+    const data = [];
+    const { indexes, address, validators } = await request.json();
+    const info = await getValidators(address, api);
 
-    const { indexes, address } = await request.json();
-    const session = await getSession(
-      request.headers.get("Cookie")
-    );
-
-    if (session.has('validators')) {
-      validators = session.get('validators');
-      const info = await getValidators(address, api);
-
-      // Validation
-      for(let id of indexes) {
-        for(let [i, validator] of validators.entries()) {
-          if(id === validator.index) {
-            const { verified, index } = proofOwnership(address, id, info);
-            if(verified) {
-              if(!validator.rewards) {
-                data.push({ index: index, status: 'ok' });
-              } else if (validator.deactivated) {
-                data.push({ index: index, status: 'deactivated' });
-              } else if(validator.active) {
-                data.push({ index: index, status: 'already registered' });
-              } 
-            } else {
-                data.push({ index: index, status: 'unowned' });
-            }
-          }
+    // Validation
+    for(const validator of validators) {
+      if(indexes.includes(validator.index)) {
+        const { verified, index } = proofOwnership(address, validator.index, info);
+        if(verified) {
+          if(!validator.rewards) {
+            data.push({ index: index, status: 'ok' });
+          } else if (validator.deactivated) {
+            data.push({ index: index, status: 'deactivated' });
+          } else if(validator.active) {
+            data.push({ index: index, status: 'already registered' });
+          } 
+        } else {
+            data.push({ index: index, status: 'unowned' });
         }
       }
     }

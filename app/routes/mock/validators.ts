@@ -38,8 +38,8 @@ export const Validators = [
     "deactivated":false
   },
   {
-    "index":472169,
-    "eth1":"0x336c442488cfed1a132d9f6edac282f977bb3fa7",
+    "index":398069,
+    "eth1":"0x6308F1c6f283583C8bf8E31Da793B87718b051eD",
     "rewards":{
       "type":"BigNumber",
       "hex":"0x0"
@@ -54,7 +54,7 @@ export const Validators = [
     "excludeRebalance":false,
     "exitRequested":false,
     "active":false,
-    "deactivated":false
+    "deactivated": true
   },
   {
     "index":432292,
