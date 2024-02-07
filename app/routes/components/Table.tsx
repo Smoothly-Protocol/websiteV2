@@ -155,7 +155,7 @@ const Action2 = (props: {
           className="t-container-2 purple-btn-hover"
           onMouseEnter={(e: any) => {changeTextOver(e, "purple", `Add ${needs} bond >`)}}
           onMouseLeave={(e: any) => {changeTextOut(e, "purple", stake)}}
-          onClick={async () => {await props.AddBond(props.validator); window.location.reload()}}
+          onClick={async () => {await props.AddBond(props.validator)}}
         >
           <span className="ft-number">
            {stake}

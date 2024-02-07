@@ -28,7 +28,7 @@ export const Validators = [
     "slashMiss":0,
     "slashFee":0,
     "stake":{
-      "type":"BigNumber","hex":"0xe6ed27d6668000"
+      "type":"BigNumber","hex":"0xb1a2bc2ec50000"
     },
     "firstBlockProposed": false,
     "firstMissedSlot":false,

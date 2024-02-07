@@ -67,7 +67,8 @@ export const getValidators = async (address: string) => {
       }
     }
 
-    return await updateValidatorState(validators, address);
+    await updateValidatorState(validators, address);
+    return validators;
   } catch(err) {
     console.log(err);
     console.log("Couldn't get validators from oracle");
