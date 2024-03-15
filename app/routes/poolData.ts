@@ -82,6 +82,7 @@ export const updateValidatorState = async (
 ) => {
   try {
     const finalized = await publicClient.getBlock({ blockTag: 'finalized'});
+    const latest = await publicClient.getBlock({ blockTag: 'latest'});
     const { poolAddress } = getNetwork(network as string);
     const logs = await publicClient.getLogs({  
       address: poolAddress,
@@ -96,6 +97,7 @@ export const updateValidatorState = async (
         eht1: address
       },
       fromBlock: finalized.number,
+      toBlock: latest.number
     })
     executeLogs(logs, validators); 
   } catch(err) {
