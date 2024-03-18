@@ -1,7 +1,7 @@
 export const Validators = [
   {
-    "index":432212,
-    "eth1":"0x336c442488cfed1a132d9f6edac282f977bb3fa7",
+    "index":574772,
+    "eth1":"0x5c2C42c476608A141CF4880afd01096e10F2a2E",
     "rewards":{
       "type":"BigNumber",
       "hex":"0x10763b42734dab3a"

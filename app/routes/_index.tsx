@@ -3,7 +3,7 @@ import {
   RainbowKitProvider,
 } from '@rainbow-me/rainbowkit';
 import { configureChains, createConfig, WagmiConfig } from 'wagmi';
-import { mainnet, goerli } from 'wagmi/chains';
+import { mainnet, holesky } from 'wagmi/chains';
 import { publicProvider } from 'wagmi/providers/public';
 import type { MetaFunction } from "@remix-run/node";
 import { Header, Footer, App } from "./components";
@@ -32,11 +32,11 @@ export const loader = async () => {
 export default function Index() {
   const { pool, network } = useLoaderData<typeof loader>();
 
-  let net = goerli;
+  let net = holesky;
   if(network == 'mainnet') {
     changeNetwork(network);
     net = mainnet;
-  } else if(network == 'goerli') {
+  } else if(network == 'holesky') {
     changeNetwork(network);
   }
 

@@ -20,4 +20,5 @@ export interface NET {
   governanceAbi: any, 
   stakeFee: bigint,
   missFee: bigint,
+  rpc: string
 }

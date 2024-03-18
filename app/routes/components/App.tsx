@@ -399,6 +399,7 @@ export const App = () => {
     <div id="app" className="container-fluid d-flex flex-column pt-5 pb-3">
 
       {/* Modals */}
+      {/*<SessionTerms show={true}/>*/}
       <Modal selected={selectedS} Subscribe={Subscribe}/> 
       <Loader hash={hash}/>
       <Alert text={alert} setText={setAlert}/>

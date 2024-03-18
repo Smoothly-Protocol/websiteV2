@@ -2,13 +2,14 @@ import { parseEther } from "ethers";
 import { SmoothlyPool, PoolGovernance } from "../artifacts";
 import type { NET } from '../types';
 
-const GOERLI: NET = {
-  poolAddress: "0x894F0786cb41b1c1760E70d61cB2952749Da6382",
-  governanceAddress: "0x08E23BC6565294136eaed19953Ff547f6d452699",
+const HOLESKY: NET = {
+  poolAddress: "0xdDdaBb545F2dc906259A9a26C33095a37f5AB1F9",
+  governanceAddress: "0x9aF9D23c1efC2f94F49eFa1eAD7c5eC36b5f584E",
   poolAbi: SmoothlyPool['abi'],
   governanceAbi: PoolGovernance['abi'], 
-  stakeFee: parseEther("0.065"),
+  stakeFee: parseEther("0.05"),
   missFee: parseEther("0.015"),
+  rpc: "https://ethereum-holesky-rpc.publicnode.com"
 }
 
 const MAINNET: NET = { 
@@ -18,22 +19,23 @@ const MAINNET: NET = {
   governanceAbi: PoolGovernance['abi'], 
   stakeFee: parseEther("0.5"),
   missFee: parseEther("0.15"),
+  rpc: "https://eth-mainnet.g.alchemy.com/v2/uSoMXts2cuKz0KmbKHNdwqK1X4YYpwT_"
 }
 
-export let NETWORK = GOERLI; 
+export let NETWORK = HOLESKY; 
 export const changeNetwork = (network: string) =>  {
-  if(network == 'goerli') {
-    NETWORK = GOERLI; 
+  if(network == 'holesky') {
+    NETWORK = HOLESKY; 
   } else if(network == 'mainnet') {
     NETWORK = MAINNET; 
   }
 }
 
 export const getNetwork = (network: string): NET =>  {
-  if(network == 'goerli') {
-    return GOERLI; 
+  if(network == 'holesky') {
+    return HOLESKY; 
   } else if(network == 'mainnet') {
     return MAINNET; 
   }
-  return GOERLI;
+  return HOLESKY;
 }

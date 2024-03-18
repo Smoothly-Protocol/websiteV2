@@ -1,6 +1,6 @@
 import type { Validator } from "./types";
 import { createPublicClient, http, parseAbi } from 'viem'
-import { mainnet, goerli } from 'viem/chains'
+import { mainnet, holesky } from 'viem/chains'
 import { getNetwork } from './utils';
 import { executeLogs } from './simulate';
 import { json, LoaderFunctionArgs } from "@remix-run/node";
@@ -10,9 +10,10 @@ const server = process.env.SERVER;
 const api = process.env.BEACONCHAIN;
 const network = process.env.NETWORK;
 
+const { rpc } = getNetwork(network as string);
 const publicClient = createPublicClient({
-  chain: network == "mainnet" ? mainnet : goerli,
-  transport: http()
+  chain: network == "mainnet" ? mainnet : holesky,
+  transport: http(rpc)
 })
 
 export const loader = async ({
@@ -42,12 +43,14 @@ export const getValidators = async (address: string) => {
     const d = await (
       await fetch(`${server}/validators/${address}`)
     ).json();
-    //const d = Validators;
+    /*
+    const d = {
+      data: Validators
+    };*/
 
-    if(process.env.NETWORK == 'goerli') {
+    if(process.env.NETWORK == 'holesky') {
       await updateValidatorState(d.data, address);
       return d.data;
-      //return d;
     }
 
     for(const [i, v] of d.data.entries()) {
@@ -81,23 +84,20 @@ export const updateValidatorState = async (
   address: string
 ) => {
   try {
-    const finalized = await publicClient.getBlock({ blockTag: 'finalized'});
-    const latest = await publicClient.getBlock({ blockTag: 'latest'});
+    const finalized = await publicClient.getBlockNumber({ blockTag: 'finalized'});
+    const latest = await publicClient.getBlockNumber({ blockTag: 'latest'});
     const { poolAddress } = getNetwork(network as string);
     const logs = await publicClient.getLogs({  
       address: poolAddress,
       events: parseAbi([
-        "event Registered(address indexed eth1, uint64[] indexes)",
-        "event RewardsWithdrawal(address indexed eth1, uint64[] indexes, uint256 value)",
-        "event StakeWithdrawal(address indexed eth1, uint64[] indexes, uint256 value)",
-        "event StakeAdded(address indexed eth1, uint64 index, uint256 value)",
-        "event ExitRequested(address indexed eth1, uint64[] indexes)"
+        'event Registered(address indexed eth1, uint64[] indexes)',
+        'event RewardsWithdrawal(address indexed eth1, uint64[] indexes, uint256 value)',
+        'event StakeWithdrawal(address indexed eth1, uint64[] indexes, uint256 value)',
+        'event StakeAdded(address indexed eth1, uint64 index, uint256 value)',
+        'event ExitRequested(address indexed eth1, uint64[] indexes)'
       ]),
-      args: {
-        eht1: address
-      },
-      fromBlock: finalized.number,
-      toBlock: latest.number
+      fromBlock: finalized,
+      toBlock: latest
     })
     executeLogs(logs, validators); 
   } catch(err) {
