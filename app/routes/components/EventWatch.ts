@@ -19,7 +19,6 @@ export const EventWatch = (props: {validators, setValidators}) => {
 
   const handleLogs = (logs) => {
     let validators = props.validators;
-    console.log(logs);
     executeLogs(logs, validators);
     props.setValidators(validators);
   }

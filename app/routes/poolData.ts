@@ -43,11 +43,14 @@ export const getValidators = async (address: string) => {
     const d = await (
       await fetch(`${server}/validators/${address}`)
     ).json();
+
     /*
+    // Mock Validators Testing
     const d = {
       data: Validators
     };*/
 
+    // Avoids status check on testnet
     if(process.env.NETWORK == 'holesky') {
       await updateValidatorState(d.data, address);
       return d.data;
@@ -55,11 +58,13 @@ export const getValidators = async (address: string) => {
 
     for(const [i, v] of d.data.entries()) {
       if(d.data.findIndex(x => x.index == v.index) != i) {continue} // Avoid Dups
+      if(!v.index) { continue } // Avoid queue validators index == null
+
       const url = `${api}/api/v1/validator/${v.index}`;
       const { data } = await (
         await fetch(url)
       ).json();
-
+      
       // Verify activeness 
       if(
         data.status == 'active_offline' || 
@@ -84,8 +89,8 @@ export const updateValidatorState = async (
   address: string
 ) => {
   try {
-    const finalized = await publicClient.getBlockNumber({ blockTag: 'finalized'});
-    const latest = await publicClient.getBlockNumber({ blockTag: 'latest'});
+    const finalized = await publicClient.getBlock({ blockTag: 'finalized'});
+    const latest = await publicClient.getBlock({ blockTag: 'latest'});
     const { poolAddress } = getNetwork(network as string);
     const logs = await publicClient.getLogs({  
       address: poolAddress,
@@ -96,10 +101,10 @@ export const updateValidatorState = async (
         'event StakeAdded(address indexed eth1, uint64 index, uint256 value)',
         'event ExitRequested(address indexed eth1, uint64[] indexes)'
       ]),
-      fromBlock: finalized,
-      toBlock: latest
+      fromBlock: finalized.number,
+      toBlock: latest.number
     })
-    executeLogs(logs, validators); 
+    executeLogs(logs, validators);
   } catch(err) {
     console.log(err);
     return validators;
