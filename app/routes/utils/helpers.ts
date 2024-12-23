@@ -58,6 +58,9 @@ export async function getTimeRemaining(provider) {
     };
   } catch(err) {
     console.log(err);
+    return {
+     total: 0, days: 0, hours: 0, minutes: 0, seconds: 0
+    }
   }
 }
 

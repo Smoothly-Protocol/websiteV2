@@ -5,6 +5,7 @@ import {
 import { configureChains, createConfig, WagmiConfig } from 'wagmi';
 import { mainnet, holesky } from 'wagmi/chains';
 import { publicProvider } from 'wagmi/providers/public';
+import { alchemyProvider } from 'wagmi/providers/alchemy';
 import type { MetaFunction } from "@remix-run/node";
 import { Header, Footer, App } from "./components";
 import { json } from "@remix-run/node";
@@ -40,7 +41,10 @@ export default function Index() {
     changeNetwork(network);
   }
 
-  const { chains, publicClient } = configureChains([net], [publicProvider()]);
+  //const { chains, publicClient } = configureChains([net], [publicProvider()]);
+  const { chains, publicClient } = configureChains([net], [
+   alchemyProvider({ apiKey: "uSoMXts2cuKz0KmbKHNdwqK1X4YYpwT_" }), 
+  ]);
   const { connectors } = getDefaultWallets({
     appName: 'Smoothly Protocol',
     projectId: 'f9e76686c044fd14d745ea9029c1a27a',
