@@ -49,18 +49,22 @@ export const App = () => {
         const data = await(await fetch(`pooldata?addr=${address}`)).json();
         setValidators(data.validators);
 
-        const rewards = await claimed(client, {
-          functionName: 'withdrawRewards',
-          args: [
-            data.withdrawals.proof[0], 
-            data.withdrawals.proof[1], 
-            data.withdrawals.proof[2].hex
-          ],
-          account: address
-        })
-        rewards 
-          ? setWithdrawals({ proof: [] }) 
-          : setWithdrawals(data.withdrawals);
+        if(data.withdrawals.proof.length > 0) {
+          const rewards = await claimed(client, {
+            functionName: 'withdrawRewards',
+            args: [
+              data.withdrawals.proof[0], 
+              data.withdrawals.proof[1], 
+              data.withdrawals.proof[2].hex 
+            ],
+            account: address
+          });
+          rewards 
+            ? setWithdrawals({ proof: [] }) 
+            : setWithdrawals(data.withdrawals);
+        } else {
+          setWithdrawals({ proof: [] })
+        }
 
         const stake = await claimed(client, {
           functionName: 'withdrawStake',
